@@ -4,7 +4,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Square, Play, Pause, RotateCcw, Sparkles, MessageSquare, ShieldCheck, Lock } from 'lucide-react';
 
 interface AudioRecorderProps {
-  onAudioReady: (blob: Blob, fileName: string, transcript?: string, duration?: number) => void;
+  onAudioReady: (
+    blob: Blob,
+    fileName: string,
+    transcript?: string,
+    duration?: number,
+    acoustics?: { zeroCrossingRate?: number; speechRhythmRatio?: number }
+  ) => void;
   disabled?: boolean;
 }
 
@@ -26,6 +32,13 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const recognitionRef = useRef<any>(null);
   const transcriptBufferRef = useRef<string>('');
+
+  // Real-time acoustic metric accumulators from live microphone PCM
+  const zcrCountRef = useRef(0);
+  const sampleCountRef = useRef(0);
+  const diffSumRef = useRef(0);
+  const sumSquaresRef = useRef(0);
+  const prevSampleRef = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -58,6 +71,12 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
       setRecordingTime(0);
       setLiveTranscript('');
       transcriptBufferRef.current = '';
+
+      zcrCountRef.current = 0;
+      sampleCountRef.current = 0;
+      diffSumRef.current = 0;
+      sumSquaresRef.current = 0;
+      prevSampleRef.current = 0;
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -93,12 +112,12 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
         }
       }
 
-      // Audio Context for visualizer
+      // Audio Context for visualizer and live acoustic metrics
       const audioContext = new (window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       audioContextRef.current = audioContext;
       const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 128;
+      analyser.fftSize = 512;
       analyserRef.current = analyser;
 
       const source = audioContext.createMediaStreamSource(stream);
@@ -126,7 +145,20 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
         const url = URL.createObjectURL(blob);
         setAudioBlob(blob);
         setAudioUrl(url);
-        onAudioReady(blob, 'recorded_audio.webm', transcriptBufferRef.current, recordingTime);
+
+        const totalSamples = Math.max(1, sampleCountRef.current);
+        const measuredZcr = Number((zcrCountRef.current / totalSamples).toFixed(4));
+        const measuredRhythm = Number(
+          Math.min(
+            0.52,
+            Math.max(0.12, measuredZcr * 1.45 + (diffSumRef.current / Math.max(1e-4, sumSquaresRef.current)) * 0.04)
+          ).toFixed(4)
+        );
+
+        onAudioReady(blob, 'recorded_audio.webm', transcriptBufferRef.current, recordingTime, {
+          zeroCrossingRate: measuredZcr,
+          speechRhythmRatio: measuredRhythm,
+        });
       };
 
       recorder.start(100);
@@ -165,6 +197,22 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
 
     const render = () => {
       analyser.getByteFrequencyData(dataArray);
+
+      // Continuously measure acoustic metrics from time-domain PCM
+      const timeData = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(timeData);
+      for (let i = 0; i < timeData.length; i += 2) {
+        const val = timeData[i];
+        sumSquaresRef.current += val * val;
+        if (sampleCountRef.current > 0) {
+          if ((val >= 0 && prevSampleRef.current < 0) || (val < 0 && prevSampleRef.current >= 0)) {
+            zcrCountRef.current++;
+          }
+          diffSumRef.current += Math.abs(val - prevSampleRef.current);
+        }
+        prevSampleRef.current = val;
+        sampleCountRef.current++;
+      }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 

@@ -24,7 +24,7 @@ export interface KimiDialectAnalysis {
 
 /**
  * Executes NVIDIA NIM neural dialectology analysis
- * Uses meta/llama-3.2-11b-vision-instruct (proven 1-2s response) and moonshotai/kimi-k3
+ * Standardized on meta/llama-3.2-11b-vision-instruct (proven 1-2s response)
  */
 export async function analyzeWithKimiK3(
   transcript: string,
@@ -43,66 +43,65 @@ export async function analyzeWithKimiK3(
   if (!apiKey) return null;
 
   const durationStr = (acoustics.durationSec || 3).toFixed(1);
-  const zcrStr = (acoustics.zeroCrossingRate || 0.22).toFixed(3);
-  const rhythmStr = (acoustics.speechRhythmRatio || 0.28).toFixed(3);
-  const pitchStr = Math.round(acoustics.estimatedPitchHz || 135);
+  const zcrStr = (acoustics.zeroCrossingRate || 0.14).toFixed(3);
+  const rhythmVal = acoustics.speechRhythmRatio || 0.24;
+  const rhythmStr = rhythmVal.toFixed(3);
+  const pitchStr = Math.round(acoustics.estimatedPitchHz || 140);
+  const rhythmClass = rhythmVal > 0.31 ? 'Stress-Timed' : rhythmVal < 0.22 ? 'Syllable-Timed' : 'Mora-Timed / Mixed';
 
-  const prompt = `You are a forensic acoustic phonetician and speech dialectologist.
+  const prompt = `You are a forensic acoustic phonetician and global dialectologist.
 Analyze the following speech sample parameters:
 
-${transcript ? `SPEECH TRANSCRIPT: "${transcript}"` : 'NO TRANSCRIPT AVAILABLE - PURE ACOUSTIC SIGNAL'}
-ACOUSTIC MEASUREMENTS:
-- Duration: ${durationStr} seconds
-- Zero Crossing Rate (Aspiration/Frication proxy): ${zcrStr}
-- Syllabic Rhythm Index: ${rhythmStr} (${(acoustics.speechRhythmRatio || 0.28) > 0.32 ? 'Stress-Timed' : (acoustics.speechRhythmRatio || 0.28) < 0.22 ? 'Syllable-Timed' : 'Mixed/Mora-Timed'})
+${transcript ? `SPEECH TRANSCRIPT: "${transcript}"` : 'AUDIO ONLY (NO TRANSCRIPT AVAILABLE - INFER DIALECT STRICTLY FROM ACOUSTIC PHONETIC METRICS)'}
+ACOUSTIC SIGNAL MEASUREMENTS:
+- Recording Duration: ${durationStr} seconds
+- Zero Crossing Rate (Aspiration & Fricative Energy): ${zcrStr}
+- Syllabic Rhythm Index: ${rhythmStr} (Classification: ${rhythmClass})
 - Fundamental Frequency F0: ${pitchStr} Hz
 
-Determine:
-1. Primary Country: Exact country (e.g. "United States", "United Kingdom", "Australia", "Canada", "India", "Pakistan", "Nigeria", "Ireland", "Germany", "France", "Spain", "Italy", "Mexico", "Brazil", "Japan", "China", "Russia", "Sweden", "Jamaica", etc.) and country flag emoji.
-2. Dialect / Substrate: (e.g. "General American", "Modern RP / Southern British", "General Australian", "Nordic Scandinavian-Substrate English", "Castilian / Spanish-Substrate", "General Indian English / Indo-Aryan Substrate").
-3. Confidence Score: Integer 75 to 95.
-4. Imitated Accent Detection: Boolean and explanation if the speaker attempts surface slang over native acoustic substrate.
-5. 3-4 Specific Phonetic Markers with IPA symbols, example words, and acoustic explanation.
-6. Runner-up candidate countries with probability percentages totaling 100 - confidenceScore.
-7. Concise 2-sentence verdict summary.
+CRITICAL GUIDELINES:
+- Distinguish globally across ALL accents: United States, United Kingdom, Australia, Canada, India, Pakistan, Nigeria, South Africa, Ireland, New Zealand, Germany, France, Spain, Italy, Mexico, Brazil, Japan, China, Russia, Sweden, Jamaica, Philippines, etc.
+- If a transcript is present, deeply evaluate regional idioms, lexical slang, rhotic vs non-rhotic vowel shifts, and dental vs retroflex stops.
+- If NO transcript is present, use the acoustic cadence: Syllable-timed indicates Romance/South Asian/African languages; Stress-timed indicates Germanic/Anglophone; Mora-timed indicates East Asian.
+- DO NOT default to United States unless acoustic rhoticity and lexical markers specifically indicate General American or a US regional dialect.
+- Determine if the speaker is imitating or faking an accent (e.g. attempting slang over native prosodic substrate).
 
-Return ONLY a valid JSON object (no markdown formatting, no code blocks):
+Return strictly a single JSON object with this structure (no markdown fences, no conversational text):
 {
-  "primaryCountry": "United States",
-  "countryFlag": "🇺🇸",
-  "regionOrDialect": "General American",
-  "confidenceScore": 88,
+  "primaryCountry": "<Determined country name, e.g. Australia, India, France, Germany, United Kingdom, United States, Japan, Brazil, etc.>",
+  "countryFlag": "<Country emoji flag>",
+  "regionOrDialect": "<Precise dialect or substrate, e.g. General Australian, Indo-Aryan Substrate English, French-Substrate English, Modern RP / Southern British, etc.>",
+  "confidenceScore": 86,
   "imitatedAccentDetected": false,
   "imitatedAccentDetails": "",
-  "verdictSummary": "Acoustic and phonological markers identify...",
+  "verdictSummary": "<Precise 2-sentence forensic acoustic summary>",
   "phoneticMarkers": [
     {
-      "feature": "Rhotic Post-Vocalic Coda",
-      "ipa": "[ɹ]",
-      "exampleWord": "car",
-      "explanation": "Pronounced retroflex tongue blade posture lowering F3."
+      "feature": "<Specific phonological feature>",
+      "ipa": "<IPA symbol>",
+      "exampleWord": "<Example word>",
+      "explanation": "<Acoustic explanation>"
     }
   ],
   "runnerUpCountries": [
     {
-      "country": "Canada",
-      "flag": "🇨🇦",
-      "probability": 12,
-      "rationale": "Shares North American rhoticity."
+      "country": "<Runner-up country>",
+      "flag": "<Emoji flag>",
+      "probability": 14,
+      "rationale": "<Phonetic similarity rationale>"
     }
   ]
 }`;
 
-  // Prioritize fast, reliable models on this NVIDIA NIM endpoint
   const candidateModels = [
     'meta/llama-3.2-11b-vision-instruct',
-    'moonshotai/kimi-k3',
+    'meta/llama-3.2-90b-vision-instruct',
   ];
 
   for (const m of candidateModels) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6500); // 6.5s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
       const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
         method: 'POST',
@@ -123,8 +122,8 @@ Return ONLY a valid JSON object (no markdown formatting, no code blocks):
               content: prompt,
             },
           ],
-          temperature: 0.12,
-          max_tokens: 650,
+          temperature: 0.1,
+          max_tokens: 380,
         }),
         signal: controller.signal,
       });
@@ -135,27 +134,42 @@ Return ONLY a valid JSON object (no markdown formatting, no code blocks):
         const data = await res.json();
         const msg = data.choices?.[0]?.message;
         let rawContent = msg?.content;
-        // Check reasoning_content if content is empty (e.g. Kimi-K3)
         if (!rawContent && msg?.reasoning_content) {
           rawContent = msg.reasoning_content;
         }
 
         if (rawContent) {
-          // Extract JSON block if wrapped
           const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
-            if (parsed.primaryCountry && parsed.confidenceScore) {
-              return parsed as KimiDialectAnalysis;
+            if (parsed.primaryCountry && typeof parsed.primaryCountry === 'string') {
+              const conf = Number(parsed.confidenceScore);
+              return {
+                primaryCountry: parsed.primaryCountry.trim(),
+                countryFlag: parsed.countryFlag || '🌐',
+                regionOrDialect: parsed.regionOrDialect || `${parsed.primaryCountry} Dialect`,
+                confidenceScore: Number.isFinite(conf) ? Math.min(95, Math.max(75, Math.round(conf))) : 85,
+                imitatedAccentDetected: Boolean(parsed.imitatedAccentDetected),
+                imitatedAccentDetails: parsed.imitatedAccentDetails || '',
+                verdictSummary: parsed.verdictSummary || `Acoustic and phonological markers identify ${parsed.primaryCountry}.`,
+                phoneticMarkers: Array.isArray(parsed.phoneticMarkers) ? parsed.phoneticMarkers : [],
+                runnerUpCountries: Array.isArray(parsed.runnerUpCountries) ? parsed.runnerUpCountries.map((r: any) => ({
+                  country: String(r.country || '').trim(),
+                  flag: r.flag || '🌐',
+                  probability: Number.isFinite(Number(r.probability)) ? Math.round(Number(r.probability)) : 10,
+                  rationale: String(r.rationale || ''),
+                })) : [],
+              };
             }
           }
         }
       }
     } catch {
-      // Fallback to next model
+      // Try next model if timeout or network failure
     }
   }
 
   return null;
 }
+
 

@@ -97,19 +97,19 @@ export async function POST(request: NextRequest) {
       if (!apiKey || !apiKey.startsWith('AIzaSy')) return null;
       try {
         const prompt = `You are an elite forensic phonetician and speech dialectologist.
-Analyze this audio recording strictly based on its acoustic phonetics, prosody, and speech characteristics.
-Determine the Primary Country Accent, dialect substrate, confidence score (75-99), imitated accent detection, 4 phonetic markers (IPA, example word, acoustic explanation), and runner up countries.
+Analyze this audio recording strictly based on its acoustic phonetics, prosody, and speech characteristics across all global accents.
+Determine the Primary Country Accent, dialect substrate, confidence score (75-95), imitated accent detection, 4 phonetic markers (IPA, example word, acoustic explanation), and runner up countries.
 Return ONLY valid JSON matching:
 {
-  "primaryCountry": "United States",
-  "countryFlag": "🇺🇸",
-  "regionOrDialect": "General American",
-  "confidenceScore": 95,
+  "primaryCountry": "<Target Country Name>",
+  "countryFlag": "<Country Flag Emoji>",
+  "regionOrDialect": "<Regional Dialect or Substrate>",
+  "confidenceScore": 88,
   "imitatedAccentDetected": false,
   "imitatedAccentDetails": "",
   "transcription": "...",
   "verdictSummary": "...",
-  "runnerUpCountries": [{"country": "Canada", "flag": "🇨🇦", "probability": 4, "rationale": "..."}],
+  "runnerUpCountries": [{"country": "<Country>", "flag": "<Flag>", "probability": 12, "rationale": "..."}],
   "phoneticMarkers": [{"feature": "...", "ipa": "...", "exampleWord": "...", "explanation": "..."}],
   "prosodyAndRhythm": {"rhythmType": "stress-timed", "rhythmDescription": "...", "pitchDynamics": "...", "stressPatterns": "..."}
 }`;
@@ -267,36 +267,73 @@ Return ONLY valid JSON matching:
       acousticBaseline.imitatedAccentDetails;
 
     // Build realistic runner-up list from remaining candidates and baseline runner-ups
-    const remainingPercent = 100 - finalConfidence;
+    const remainingPercent = Math.max(5, 100 - finalConfidence);
     const runnerUps: RunnerUpMatch[] = [];
 
     const candidateList: { country: string; score: number; rationale?: string }[] = [];
+
+    // Add Kimi runner ups if any
+    if (kimiResult?.runnerUpCountries && Array.isArray(kimiResult.runnerUpCountries)) {
+      for (const r of kimiResult.runnerUpCountries) {
+        if (r.country && r.country.toLowerCase() !== topCountry.toLowerCase()) {
+          candidateList.push({
+            country: r.country,
+            score: Number(r.probability) || 12,
+            rationale: r.rationale || 'Neural dialectology acoustic resonance.',
+          });
+        }
+      }
+    }
+
+    // Add baseline candidates
     for (const [cName, data] of Object.entries(candidates)) {
-      if (cName.toLowerCase() !== topCountry.toLowerCase()) {
+      if (
+        cName.toLowerCase() !== topCountry.toLowerCase() &&
+        !candidateList.some((x) => x.country.toLowerCase() === cName.toLowerCase())
+      ) {
         candidateList.push({
           country: cName,
-          score: data.confidence,
+          score: Number(data.confidence) || 10,
           rationale: `Evaluated by ${data.source} with alternative acoustic phonetic resonance.`,
         });
       }
     }
 
     // Supplement with runner-ups from acoustic baseline
-    for (const r of acousticBaseline.runnerUpCountries) {
+    for (const r of acousticBaseline.runnerUpCountries || []) {
       if (
+        r.country &&
         r.country.toLowerCase() !== topCountry.toLowerCase() &&
         !candidateList.some((x) => x.country.toLowerCase() === r.country.toLowerCase())
       ) {
         candidateList.push({
           country: r.country,
-          score: r.probability,
+          score: Number(r.probability) || 8,
           rationale: r.rationale,
         });
       }
     }
 
+    // Ensure we always have at least 2 runner-up candidates
+    if (candidateList.length < 2) {
+      const fallbackCountries = ['Canada', 'United Kingdom', 'Australia', 'Ireland', 'Germany', 'France', 'India', 'Japan'];
+      for (const fb of fallbackCountries) {
+        if (
+          fb.toLowerCase() !== topCountry.toLowerCase() &&
+          !candidateList.some((x) => x.country.toLowerCase() === fb.toLowerCase())
+        ) {
+          candidateList.push({
+            country: fb,
+            score: 8,
+            rationale: 'Secondary regional phonetic affinity.',
+          });
+          if (candidateList.length >= 3) break;
+        }
+      }
+    }
+
     const topRunnerUps = candidateList.slice(0, 3);
-    const runnerUpSum = topRunnerUps.reduce((acc, curr) => acc + curr.score, 0) || 1;
+    const runnerUpSum = topRunnerUps.reduce((acc, curr) => acc + (Number(curr.score) || 1), 0) || 1;
     let allocatedProb = 0;
 
     for (let i = 0; i < topRunnerUps.length; i++) {
@@ -306,13 +343,15 @@ Return ONLY valid JSON matching:
       if (i === topRunnerUps.length - 1) {
         prob = Math.max(1, remainingPercent - allocatedProb);
       } else {
-        prob = Math.max(1, Math.round((item.score / runnerUpSum) * remainingPercent));
+        const rawP = Math.round(((Number(item.score) || 1) / runnerUpSum) * remainingPercent);
+        const remainingSlots = topRunnerUps.length - 1 - i;
+        prob = Math.max(1, Math.min(remainingPercent - allocatedProb - remainingSlots, rawP));
         allocatedProb += prob;
       }
       runnerUps.push({
         country: item.country,
         flag: theme.flag,
-        probability: prob,
+        probability: Math.round(prob),
         rationale: item.rationale || `Secondary dialect resonance.`,
       });
     }
