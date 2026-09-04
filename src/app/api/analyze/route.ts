@@ -147,9 +147,14 @@ Return ONLY valid JSON matching:
       return null;
     };
 
+    const hasTranscript = Boolean(safeTranscript && safeTranscript.trim().length > 3);
+
     const runKimi = async (): Promise<KimiDialectAnalysis | null> => {
+      // Only invoke text-based NIM LLM when there is actual transcribed speech to analyze.
+      // For pure audio without transcripts, the physical acoustic engine is authoritative.
+      if (!hasTranscript) return null;
       try {
-        return await analyzeWithKimiK3(clientTranscript || '', {
+        return await analyzeWithKimiK3(safeTranscript!, {
           durationSec: clientDuration || acousticBaseline.acoustics?.durationSec || 3,
           zeroCrossingRate: clientZcr || acousticBaseline.acoustics?.zeroCrossingRate,
           speechRhythmRatio: clientRhythm || acousticBaseline.acoustics?.speechRhythmRatio,
