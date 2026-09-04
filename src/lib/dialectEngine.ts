@@ -220,9 +220,15 @@ export function classifySpeechDialect(
   transcriptText?: string,
   clientAcoustics?: Partial<AcousticFeatures>
 ): AccentAnalysisResponse {
-  const acoustics = {
-    ...extractAcousticFeatures(audioBuffer, mimeType),
-    ...clientAcoustics,
+  const extracted = extractAcousticFeatures(audioBuffer, mimeType);
+  const acoustics: AcousticFeatures = {
+    durationSec: Number.isFinite(clientAcoustics?.durationSec) ? clientAcoustics!.durationSec! : extracted.durationSec,
+    rms: Number.isFinite(clientAcoustics?.rms) ? clientAcoustics!.rms! : extracted.rms,
+    zeroCrossingRate: Number.isFinite(clientAcoustics?.zeroCrossingRate) ? clientAcoustics!.zeroCrossingRate! : extracted.zeroCrossingRate,
+    highFreqRatio: Number.isFinite(clientAcoustics?.highFreqRatio) ? clientAcoustics!.highFreqRatio! : extracted.highFreqRatio,
+    estimatedPitchHz: Number.isFinite(clientAcoustics?.estimatedPitchHz) ? clientAcoustics!.estimatedPitchHz! : extracted.estimatedPitchHz,
+    syllableRate: Number.isFinite(clientAcoustics?.syllableRate) ? clientAcoustics!.syllableRate! : extracted.syllableRate,
+    speechRhythmRatio: Number.isFinite(clientAcoustics?.speechRhythmRatio) ? clientAcoustics!.speechRhythmRatio! : extracted.speechRhythmRatio,
   };
 
   const text = (transcriptText || '').toLowerCase().trim();

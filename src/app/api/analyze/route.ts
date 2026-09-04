@@ -28,9 +28,13 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = (formData.get('file') || formData.get('audio')) as File | null;
     const clientTranscript = (formData.get('transcript') as string | null) || undefined;
-    const clientDuration = formData.get('duration') ? Number(formData.get('duration')) : undefined;
-    const clientZcr = formData.get('zeroCrossingRate') ? Number(formData.get('zeroCrossingRate')) : undefined;
-    const clientRhythm = formData.get('speechRhythmRatio') ? Number(formData.get('speechRhythmRatio')) : undefined;
+    const rawDur = formData.get('duration');
+    const rawZcr = formData.get('zeroCrossingRate');
+    const rawRhythm = formData.get('speechRhythmRatio');
+
+    const clientDuration = rawDur && Number.isFinite(Number(rawDur)) ? Number(rawDur) : undefined;
+    const clientZcr = rawZcr && Number.isFinite(Number(rawZcr)) ? Number(rawZcr) : undefined;
+    const clientRhythm = rawRhythm && Number.isFinite(Number(rawRhythm)) ? Number(rawRhythm) : undefined;
 
     if (!file) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
@@ -82,11 +86,17 @@ export async function POST(request: NextRequest) {
     else if (isWebm) mimeType = 'audio/webm';
 
     // 1. Run Authentic Acoustic Dialectology Engine
-    const acousticBaseline = classifySpeechDialect(buffer, mimeType, safeTranscript, {
-      durationSec: clientDuration,
-      zeroCrossingRate: clientZcr,
-      speechRhythmRatio: clientRhythm,
-    });
+    const clientAcoustics: Record<string, number> = {};
+    if (clientDuration !== undefined) clientAcoustics.durationSec = clientDuration;
+    if (clientZcr !== undefined) clientAcoustics.zeroCrossingRate = clientZcr;
+    if (clientRhythm !== undefined) clientAcoustics.speechRhythmRatio = clientRhythm;
+
+    const acousticBaseline = classifySpeechDialect(
+      buffer,
+      mimeType,
+      safeTranscript,
+      Object.keys(clientAcoustics).length > 0 ? clientAcoustics : undefined
+    );
 
     const transcriptToAnalyze = safeTranscript || acousticBaseline.transcription || '';
 
