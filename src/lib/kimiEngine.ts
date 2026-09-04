@@ -48,6 +48,31 @@ export async function analyzeWithKimiK3(
   const rhythmClass = rhythmVal > 0.31 ? 'Stress-Timed' : rhythmVal < 0.22 ? 'Syllable-Timed' : 'Mora-Timed / Mixed';
 
   const prompt = `You are a forensic acoustic phonetician and global dialectologist.
+You base your dialectological decisions on empirical sociolinguistic and phonetic research frameworks:
+1. J.C. Wells (1982) "Accents of English" (Lexical Sets):
+   - TRAP-BATH split: Broad [ɑː] in RP, Australia, New Zealand, South Africa vs short [æ] in General American, Canada, and Northern England.
+   - FOOT-STRUT split: Northern English preserves [ʊ] for both; RP/GA split to [ʊ] and [ʌ].
+   - LOT-CLOTH split & LOT-THOUGHT merger (Father-Bother merger).
+   - GOOSE fronting: Extreme fronting [ʉː] in Modern RP/Australian; back [uː] in General American.
+   - FLEECE diphthongization: Broad Australian [əi] / [ɪi] vs American/RP [iː].
+   - PRICE & MOUTH shifts: Australian/NZ front-raising (PRICE [ɑe]/[ɒe], MOUTH [æɔ]/[æʊ]).
+   - Canadian Raising: Raising of /aɪ/ and /aʊ/ nuclei to [ʌɪ] and [ʌʊ] before voiceless consonants.
+2. Labov, Ash & Boberg (2006) ANAE:
+   - Northern Cities Vowel Shift (NCVS: TRAP raising [ɛə], LOT fronting [a], THOUGHT lowering [ɒ]).
+   - Southern Vowel Shift (PRICE monophthongization [aː], pin-pen merger).
+   - Rhoticity: Postvocalic /r/ ([ɹ]) retention with sharp F3 suppression.
+3. Peterson & Barney / Hillenbrand Formant Correlates:
+   - F3 Suppression (< 2000 Hz) in rhotic accents (US, Canada, Ireland, Scotland) vs high F3 (> 2500 Hz) in non-rhotic accents (RP/Estuary, Australia, New Zealand, South Africa, Caribbean).
+4. Lisker & Abramson VOT & Consonant Landmarks:
+   - Aspirated fortis plosives (VOT > 65ms in Anglophone GA/RP/Aus) vs unaspirated plosives (VOT < 25ms in South Asian, Romance, African varieties).
+   - Retroflex plosives [ʈ], [ɖ] and retroflex flap [ɽ] characteristic of South Asian / Indian English substrate.
+   - Dental stops [t̪], [d̪] replacing dental fricatives /θ, ð/ in South Asian, French, Italian, Spanish substrates.
+   - Intervocalic /t/: Flapping [ɾ] in North American/Australian vs glottaling [ʔ] in British Estuary.
+5. Grabe & Low / Deterding nPVI Isochrony:
+   - Stress-timed (high vocalic nPVI > 55): Heavy unstressed vowel reduction to schwa [ə] (British, American, German).
+   - Syllable-timed (low vocalic nPVI < 45): Equal syllable duration, full vowel retention (Indian, Nigerian, Singaporean, Jamaican, Spanish substrate).
+   - Mora-timed: Japanese English with vowel epenthesis [ɯ, o].
+
 Analyze the following speech sample parameters:
 
 ${transcript ? `SPEECH TRANSCRIPT: "${transcript}"` : 'AUDIO ONLY (NO TRANSCRIPT AVAILABLE - INFER DIALECT STRICTLY FROM ACOUSTIC PHONETIC METRICS)'}
@@ -62,7 +87,7 @@ CRITICAL GUIDELINES:
 - If a transcript is present, deeply evaluate regional idioms, lexical slang, rhotic vs non-rhotic vowel shifts, and dental vs retroflex stops.
 - If NO transcript is present, use the acoustic cadence: Syllable-timed indicates Romance/South Asian/African languages; Stress-timed indicates Germanic/Anglophone; Mora-timed indicates East Asian.
 - DO NOT default to United States unless acoustic rhoticity and lexical markers specifically indicate General American or a US regional dialect.
-- Determine if the speaker is imitating or faking an accent (e.g. attempting slang over native prosodic substrate).
+- Determine if the speaker is imitating or faking an accent.
 
 Return strictly a single JSON object with this structure (no markdown fences, no conversational text):
 {
@@ -93,7 +118,9 @@ Return strictly a single JSON object with this structure (no markdown fences, no
 
   const candidateModels = [
     'meta/llama-3.2-11b-vision-instruct',
-    'meta/llama-3.2-90b-vision-instruct',
+    'meta/llama-3.1-70b-instruct',
+    'meta/llama-3.2-3b-instruct',
+    'mistralai/mistral-large-2-instruct',
   ];
 
   for (const m of candidateModels) {

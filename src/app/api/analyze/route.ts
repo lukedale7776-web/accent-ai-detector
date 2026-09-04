@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     const base64Audio = buffer.toString('base64');
     let mimeType = file.type || 'audio/webm';
-    if (file.name.endsWith('.mp3') || isMp3) mimeType = 'audio/mp3';
+    if (file.name.endsWith('.mp3') || isMp3) mimeType = 'audio/mpeg';
     else if (file.name.endsWith('.wav') || isWav) mimeType = 'audio/wav';
     else if (file.name.endsWith('.m4a') || isM4a) mimeType = 'audio/m4a';
     else if (file.name.endsWith('.aac')) mimeType = 'audio/aac';
@@ -120,26 +120,75 @@ export async function POST(request: NextRequest) {
         return null;
       }
 
-      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
-      const prompt = `You are an elite forensic phonetician and speech dialectologist.
-Analyze this audio recording strictly based on its acoustic phonetics, prosody, and speech characteristics across all global accents.
-Determine the Primary Country Accent, dialect substrate, confidence score (75-95), imitated accent detection, 4 phonetic markers (IPA, example word, acoustic explanation), and runner up countries.
-Return ONLY valid JSON matching:
+      const candidateModels = ['gemini-3.6-flash', 'gemini-flash-latest', 'gemini-2.5-flash'];
+      const prompt = `You are a world-class forensic acoustic phonetician and speech dialectologist.
+You base your dialectological decisions on empirical sociolinguistic and phonetic research frameworks:
+1. J.C. Wells (1982) "Accents of English" (Vols 1–3, Cambridge):
+   - TRAP-BATH split: Broad [ɑː] in RP/Standard Southern British, Australia, New Zealand, South Africa vs short [æ] in General American, Canada, and Northern England.
+   - FOOT-STRUT split: Northern England retains undivided [ʊ]; RP, General American, and Southern Hemispheric varieties split to [ʊ] and [ʌ].
+   - LOT-CLOTH split & LOT-THOUGHT merger (Father-Bother merger in North America).
+   - GOOSE fronting: Extreme fronting [ʉː] in Modern RP and Australian; central/back [uː] in General American.
+   - FLEECE diphthongization: Broad Australian [əi] / [ɪi] vs American/RP [iː].
+   - PRICE & MOUTH shifts: Australian/NZ front-raising (PRICE [ɑe]/[ɒe], MOUTH [æɔ]/[æʊ]).
+   - Canadian Raising: Raising of /aɪ/ and /aʊ/ nuclei to [ʌɪ] and [ʌʊ] before voiceless consonants ('about', 'house', 'knife', 'night').
+2. Labov, Ash & Boberg (2006) "The Atlas of North American English" (ANAE):
+   - Northern Cities Vowel Shift (NCVS): Inland North US (Chicago, Detroit, Cleveland) marked by TRAP fronting/raising [ɛə], LOT fronting [a], THOUGHT lowering [ɒ].
+   - Southern Vowel Shift (SVS): PRICE monophthongization (/aɪ/ -> [aː]), pin-pen merger (/ɪ/ = /ɛ/ before nasals).
+   - California Vowel Shift (CVS): GOOSE/GOAT fronting, TRAP lowering.
+   - Postvocalic rhoticity: Retention of postvocalic /r/ ([ɹ]) with sharp F3 suppression.
+3. Peterson & Barney (1952) / Hillenbrand (1995) Acoustic Formants & Measurements:
+   - Formant 3 (F3) Suppression: Rhotic accents (US, Canada, Ireland, Scotland) exhibit strong F3 lowering (< 2000 Hz) in syllable codas. Non-rhotic accents (RP/Estuary, Australia, New Zealand, South Africa, Caribbean, West Africa) have unsuppressed F3 (> 2500 Hz).
+   - Formant dispersion: F1 correlates inversely with vowel height; F2 correlates with frontness/backness.
+4. Lisker & Abramson (1964) Voice Onset Time (VOT) & Consonantal Realizations:
+   - Aspirated fortis plosives: Long lag (VOT > 60-80 ms) in GA, RP, Australian English.
+   - Unaspirated fortis plosives: Short lag (VOT < 25 ms) in South Asian, Singaporean, Romance (Spanish, French, Italian) substrates.
+   - Retroflexion: Sub-apical retroflex plosives [ʈ], [ɖ] and retroflex flap [ɽ] with lowered F4 characteristic of South Asian / Indian English substrate.
+   - Dentalization: Substitution of dental fricatives /θ, ð/ with dental stops [t̪, d̪] in South Asian, French, Italian, and Spanish substrates.
+   - Intervocalic /t/: Flapping [ɾ] in North American and Australian vs glottaling [ʔ] in British Estuary/Cockney.
+5. Grabe & Low (2002) / Deterding (2006) Prosody & Isochrony (nPVI):
+   - Stress-timed (High vocalic nPVI > 55): Heavy unstressed vowel reduction to schwa [ə], variable foot duration (British, American, German).
+   - Syllable-timed (Low vocalic nPVI < 45): Relatively equal syllable duration, lack of schwa reduction (Indian, Nigerian, Singaporean, Jamaican, Spanish substrate).
+   - Mora-timed: Japanese English with vowel epenthesis [ɯ, o].
+
+PHYSICAL ACOUSTIC MEASUREMENTS EXTRACTED FROM THIS AUDIO SIGNAL:
+- Fundamental Frequency F0 (Estimated Pitch): ${Math.round(acousticBaseline.acoustics?.estimatedPitchHz || 140)} Hz
+- Zero Crossing Rate (Aspiration & High-Frequency Noise): ${(acousticBaseline.acoustics?.zeroCrossingRate || 0.12).toFixed(4)}
+- Syllabic Rhythm Index (nPVI Cadence): ${(acousticBaseline.acoustics?.speechRhythmRatio || 0.22).toFixed(4)} (${(acousticBaseline.acoustics?.speechRhythmRatio || 0.22) > 0.31 ? 'Stress-Timed' : (acousticBaseline.acoustics?.speechRhythmRatio || 0.22) < 0.22 ? 'Syllable-Timed' : 'Mixed Cadence'})
+- High Frequency Spectral Energy Ratio: ${(acousticBaseline.acoustics?.highFreqRatio || 0.35).toFixed(4)}
+- Audio Duration: ${(acousticBaseline.acoustics?.durationSec || 3.5).toFixed(2)} seconds
+
+CRITICAL ACCURACY INSTRUCTIONS:
+- Listen to the raw audio waveform directly. Cross-reference the phonetics and acoustic measurements above.
+- NEVER default to the United States. Classify objectively across ALL global accents (Australia, India, United Kingdom, Canada, Ireland, South Africa, New Zealand, Nigeria, Jamaica, Germany, France, Spain, Italy, Mexico, Brazil, Japan, China, Russia, Sweden, etc.).
+- Identify if the accent is genuine or an imitation/attempt.
+- Return strictly valid JSON with no extra conversational text or markdown code fences:
 {
-  "primaryCountry": "<Target Country Name>",
+  "primaryCountry": "<Country Name>",
   "countryFlag": "<Country Flag Emoji>",
-  "regionOrDialect": "<Regional Dialect or Substrate>",
-  "confidenceScore": 88,
+  "regionOrDialect": "<Specific Dialect or Substrate, e.g. General Australian, Indo-Aryan Substrate, Standard Southern British, Southern US, etc.>",
+  "confidenceScore": 89,
   "imitatedAccentDetected": false,
   "imitatedAccentDetails": "",
-  "transcription": "...",
-  "verdictSummary": "...",
-  "runnerUpCountries": [{"country": "<Country>", "flag": "<Flag>", "probability": 12, "rationale": "..."}],
-  "phoneticMarkers": [{"feature": "...", "ipa": "...", "exampleWord": "...", "explanation": "..."}],
-  "prosodyAndRhythm": {"rhythmType": "stress-timed", "rhythmDescription": "...", "pitchDynamics": "...", "stressPatterns": "..."}
+  "transcription": "<Accurate transcription of speech if intelligible>",
+  "verdictSummary": "<2-sentence authoritative forensic rationale citing specific vowel shifts, rhoticity, VOT, or rhythm>",
+  "runnerUpCountries": [
+    {"country": "<Country>", "flag": "<Flag>", "probability": 10, "rationale": "<Phonetic distinction>"}
+  ],
+  "phoneticMarkers": [
+    {"feature": "<Feature name from Wells/Labov/VOT>", "ipa": "<Precise IPA>", "exampleWord": "<Word>", "explanation": "<Acoustic explanation>"},
+    {"feature": "...", "ipa": "...", "exampleWord": "...", "explanation": "..."},
+    {"feature": "...", "ipa": "...", "exampleWord": "...", "explanation": "..."},
+    {"feature": "...", "ipa": "...", "exampleWord": "...", "explanation": "..."}
+  ],
+  "prosodyAndRhythm": {
+    "rhythmType": "stress-timed | syllable-timed | mora-timed",
+    "rhythmDescription": "<Detailed description of timing and isochrony>",
+    "pitchDynamics": "<F0 dynamics and intonation contour>",
+    "stressPatterns": "<Primary vs secondary lexical stress behavior>"
+  }
 }`;
-
-      for (const model of candidateModels) {
+      const model = 'gemini-3.6-flash';
+      for (let attempt = 0; attempt < 2; attempt++) {
         try {
           const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
           const res = await fetch(geminiEndpoint, {
@@ -173,15 +222,17 @@ Return ONLY valid JSON matching:
             }
           } else {
             const errBody = await res.text();
-            console.error(`[Gemini Engine Error] Model ${model} HTTP ${res.status}:`, errBody);
+            console.error(`[Gemini Engine Error] Model ${model} attempt ${attempt} HTTP ${res.status}:`, errBody);
             engineTelemetry.gemini.status = 'failed';
             engineTelemetry.gemini.error = `HTTP ${res.status}: ${errBody.slice(0, 150)}`;
-            if (res.status === 400 || res.status === 403 || res.status === 429) {
-              break;
+            if (attempt === 0 && (res.status === 503 || res.status === 500)) {
+              await new Promise(r => setTimeout(r, 800));
+              continue;
             }
+            break;
           }
         } catch (err: any) {
-          console.error(`[Gemini Engine Exception] Model ${model}:`, err?.message || err);
+          console.error(`[Gemini Engine Exception] Model ${model} attempt ${attempt}:`, err?.message || err);
           engineTelemetry.gemini.status = 'failed';
           engineTelemetry.gemini.error = err?.message || String(err);
         }
@@ -196,12 +247,8 @@ Return ONLY valid JSON matching:
         engineTelemetry.kimi.status = 'no_api_key';
         return null;
       }
-      if (!hasTranscript) {
-        engineTelemetry.kimi.status = 'skipped_no_transcript';
-        return null;
-      }
       try {
-        const res = await analyzeWithKimiK3(safeTranscript!, {
+        const res = await analyzeWithKimiK3(safeTranscript || '', {
           durationSec: acousticBaseline.acoustics?.durationSec || 3,
           zeroCrossingRate: acousticBaseline.acoustics?.zeroCrossingRate,
           speechRhythmRatio: acousticBaseline.acoustics?.speechRhythmRatio,
@@ -216,7 +263,7 @@ Return ONLY valid JSON matching:
           return null;
         }
       } catch (err: any) {
-        console.error('[NVIDIA/Kimi Engine Exception]:', err?.message || err);
+        console.error('[NVIDIA NIM Engine Exception]:', err?.message || err);
         engineTelemetry.kimi.status = 'failed';
         engineTelemetry.kimi.error = err?.message || String(err);
         return null;
