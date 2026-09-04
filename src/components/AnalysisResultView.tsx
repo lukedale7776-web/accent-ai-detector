@@ -76,7 +76,7 @@ Summary: ${result.verdictSummary}`;
                 {result.countryFlag}
               </span>
               <div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs uppercase font-bold tracking-widest text-indigo-400">
                     Primary Country Match
                   </span>
@@ -84,6 +84,12 @@ Summary: ${result.verdictSummary}`;
                     <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-400" />
                     Verified
                   </span>
+                  {result.engineTelemetry?.primaryEngineUsed && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                      <Sparkles className="w-3 h-3 mr-1 text-indigo-400" />
+                      {result.engineTelemetry.primaryEngineUsed}
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-0.5">
                   {result.primaryCountry}

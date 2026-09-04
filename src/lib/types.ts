@@ -42,6 +42,12 @@ export interface AccentAnalysisResponse {
   phoneticMarkers: PhoneticMarker[];
   prosodyAndRhythm: ProsodicMetrics;
   acoustics?: AcousticFeatures;
+  engineTelemetry?: {
+    gemini: { status: string; error?: string };
+    kimi: { status: string; error?: string };
+    acoustic: { status: string };
+    primaryEngineUsed: string;
+  };
   quotaRemaining: number;
   isAdmin: boolean;
   timestamp: string;

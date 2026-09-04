@@ -104,13 +104,24 @@ export async function POST(request: NextRequest) {
 
     const transcriptToAnalyze = safeTranscript || acousticBaseline.transcription || '';
 
-    // 2. Parallel AI Execution: Gemini 2.5 & Kimi-K3
+    // 2. Parallel AI Execution: Gemini Multimodal Audio & Kimi/NVIDIA
     const apiKey = process.env.GEMINI_API_KEY;
+    const engineTelemetry = {
+      gemini: { status: 'not_configured', model: undefined as string | undefined, error: undefined as string | undefined },
+      kimi: { status: 'not_configured', error: undefined as string | undefined },
+      acoustic: { status: 'executed' },
+      primaryEngineUsed: 'Forensic Acoustic Engine',
+    };
 
     const runGemini = async (): Promise<Partial<AccentAnalysisResponse> | null> => {
-      if (!apiKey || !apiKey.startsWith('AIzaSy')) return null;
-      try {
-        const prompt = `You are an elite forensic phonetician and speech dialectologist.
+      if (!apiKey || apiKey.trim().length < 8) {
+        console.warn('[Gemini Engine] GEMINI_API_KEY not configured. Forensic Acoustic Engine will run.');
+        engineTelemetry.gemini.status = 'no_api_key';
+        return null;
+      }
+
+      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+      const prompt = `You are an elite forensic phonetician and speech dialectologist.
 Analyze this audio recording strictly based on its acoustic phonetics, prosody, and speech characteristics across all global accents.
 Determine the Primary Country Accent, dialect substrate, confidence score (75-95), imitated accent detection, 4 phonetic markers (IPA, example word, acoustic explanation), and runner up countries.
 Return ONLY valid JSON matching:
@@ -128,35 +139,52 @@ Return ONLY valid JSON matching:
   "prosodyAndRhythm": {"rhythmType": "stress-timed", "rhythmDescription": "...", "pitchDynamics": "...", "stressPatterns": "..."}
 }`;
 
-        const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-        const res = await fetch(geminiEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  { text: prompt },
-                  { inlineData: { mimeType, data: base64Audio } },
-                ],
+      for (const model of candidateModels) {
+        try {
+          const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
+          const res = await fetch(geminiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    { inlineData: { mimeType, data: base64Audio } },
+                  ],
+                },
+              ],
+              generationConfig: {
+                responseMimeType: 'application/json',
+                temperature: 0.15,
               },
-            ],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              temperature: 0.15,
-            },
-          }),
-        });
+            }),
+          });
 
-        if (res.ok) {
-          const json = await res.json();
-          const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            return JSON.parse(text.trim().replace(/^```json\s*/, '').replace(/```$/, ''));
+          if (res.ok) {
+            const json = await res.json();
+            const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) {
+              const parsed = JSON.parse(text.trim().replace(/^```json\s*/, '').replace(/```$/, ''));
+              console.log(`[Gemini Engine] Successfully analyzed audio directly using ${model}`);
+              engineTelemetry.gemini.status = 'success';
+              engineTelemetry.gemini.model = model;
+              return parsed;
+            }
+          } else {
+            const errBody = await res.text();
+            console.error(`[Gemini Engine Error] Model ${model} HTTP ${res.status}:`, errBody);
+            engineTelemetry.gemini.status = 'failed';
+            engineTelemetry.gemini.error = `HTTP ${res.status}: ${errBody.slice(0, 150)}`;
+            if (res.status === 400 || res.status === 403 || res.status === 429) {
+              break;
+            }
           }
+        } catch (err: any) {
+          console.error(`[Gemini Engine Exception] Model ${model}:`, err?.message || err);
+          engineTelemetry.gemini.status = 'failed';
+          engineTelemetry.gemini.error = err?.message || String(err);
         }
-      } catch {
-        // Fallback gracefully
       }
       return null;
     };
@@ -164,72 +192,91 @@ Return ONLY valid JSON matching:
     const hasTranscript = Boolean(safeTranscript && safeTranscript.trim().length > 3);
 
     const runKimi = async (): Promise<KimiDialectAnalysis | null> => {
-      // Only invoke text-based NIM LLM when there is actual transcribed speech to analyze.
-      // For pure audio without transcripts, the physical acoustic engine is authoritative.
-      if (!hasTranscript) return null;
+      if (!process.env.NVIDIA_API_KEY) {
+        engineTelemetry.kimi.status = 'no_api_key';
+        return null;
+      }
+      if (!hasTranscript) {
+        engineTelemetry.kimi.status = 'skipped_no_transcript';
+        return null;
+      }
       try {
-        return await analyzeWithKimiK3(safeTranscript!, {
+        const res = await analyzeWithKimiK3(safeTranscript!, {
           durationSec: acousticBaseline.acoustics?.durationSec || 3,
           zeroCrossingRate: acousticBaseline.acoustics?.zeroCrossingRate,
           speechRhythmRatio: acousticBaseline.acoustics?.speechRhythmRatio,
           estimatedPitchHz: acousticBaseline.acoustics?.estimatedPitchHz,
           highFreqRatio: acousticBaseline.acoustics?.highFreqRatio,
         });
-      } catch {
+        if (res) {
+          engineTelemetry.kimi.status = 'success';
+          return res;
+        } else {
+          engineTelemetry.kimi.status = 'failed';
+          return null;
+        }
+      } catch (err: any) {
+        console.error('[NVIDIA/Kimi Engine Exception]:', err?.message || err);
+        engineTelemetry.kimi.status = 'failed';
+        engineTelemetry.kimi.error = err?.message || String(err);
         return null;
       }
     };
 
     const [geminiResult, kimiResult] = await Promise.all([runGemini(), runKimi()]);
 
-    // 3. Maximum Possibility Fusion of Kimi-K3, Gemini, and Acoustic Engine
-    // Collect country candidates with their respective confidence probabilities
+    // 3. Fusion of Multimodal Gemini, NVIDIA LLM, and Acoustic Signal Physics
     const candidates: Record<string, { confidence: number; source: string; details: any }> = {};
 
     // Add acoustic baseline
     candidates[acousticBaseline.primaryCountry] = {
       confidence: acousticBaseline.confidenceScore,
-      source: 'Acoustic Dialectology Signal',
+      source: 'Acoustic Signal Physics Engine',
       details: acousticBaseline,
     };
 
     // Add Gemini if available
     const gRes = geminiResult as Partial<AccentAnalysisResponse> | null;
     if (gRes && gRes.primaryCountry && gRes.confidenceScore) {
-      const existing = candidates[gRes.primaryCountry];
-      if (!existing || gRes.confidenceScore > existing.confidence) {
-        candidates[gRes.primaryCountry] = {
-          confidence: gRes.confidenceScore,
-          source: 'Acoustic Spectral Neural Engine',
-          details: gRes,
-        };
-      }
+      candidates[gRes.primaryCountry] = {
+        confidence: gRes.confidenceScore,
+        source: 'Gemini Multimodal Audio Neural Vision',
+        details: gRes,
+      };
     }
 
-    // Add Kimi-K3 if available
+    // Add Kimi if available
     const kRes = kimiResult as KimiDialectAnalysis | null;
     if (kRes && kRes.primaryCountry && kRes.confidenceScore) {
       const existing = candidates[kRes.primaryCountry];
       if (!existing || kRes.confidenceScore > existing.confidence) {
         candidates[kRes.primaryCountry] = {
           confidence: kRes.confidenceScore,
-          source: 'Forensic Dialectology Engine',
+          source: 'Forensic Dialectology Model',
           details: kRes,
         };
       }
     }
 
-    // Find the candidate with the MAXIMUM possibility
+    // Select winner: If Gemini heard the audio, it is prioritized as the direct multimodal listener
     let topCountry = acousticBaseline.primaryCountry;
     let maxConfidence = acousticBaseline.confidenceScore;
-    let bestSource = 'Dual-Engine Consensus';
+    let bestSource = 'Acoustic Signal Physics Engine';
 
-    for (const [cName, data] of Object.entries(candidates)) {
-      if (data.confidence > maxConfidence) {
-        maxConfidence = data.confidence;
-        topCountry = cName;
-        bestSource = data.source;
+    if (gRes?.primaryCountry && gRes.confidenceScore) {
+      topCountry = gRes.primaryCountry;
+      maxConfidence = gRes.confidenceScore;
+      bestSource = 'Gemini Multimodal Audio Neural Vision';
+      engineTelemetry.primaryEngineUsed = 'Gemini Multimodal Audio Neural Vision';
+    } else {
+      for (const [cName, data] of Object.entries(candidates)) {
+        if (data.confidence > maxConfidence) {
+          maxConfidence = data.confidence;
+          topCountry = cName;
+          bestSource = data.source;
+        }
       }
+      engineTelemetry.primaryEngineUsed = bestSource;
     }
 
     // Dynamic Multi-Engine Consensus Adjustment:
@@ -386,11 +433,15 @@ Return ONLY valid JSON matching:
       imitatedAccentDetected: isImitated,
       imitatedAccentDetails: isImitated ? imitationDetails : undefined,
       transcription: transcriptToAnalyze || acousticBaseline.transcription,
-      verdictSummary: `Maximum possibility analysis across authentic speech sources (forensic acoustic & phonological dialect models) identifies ${topCountry} with ${finalConfidence}% confidence. ${acousticBaseline.verdictSummary}`,
+      verdictSummary:
+        bestSource === 'Gemini Multimodal Audio Neural Vision'
+          ? `Gemini Multimodal Audio Neural Engine analyzed the raw acoustic waveform directly, identifying ${topCountry} (${geminiResult?.regionOrDialect || acousticBaseline.regionOrDialect}) with ${finalConfidence}% confidence.`
+          : `Forensic Acoustic Signal Engine identified a ${finalConfidence}% spectral centroid match with ${topCountry} based on physical pitch (F0), zero-crossing rate, and rhythm dynamics.`,
       runnerUpCountries: runnerUps,
       phoneticMarkers: mergedPhonetics.slice(0, 5),
       prosodyAndRhythm: geminiResult?.prosodyAndRhythm || acousticBaseline.prosodyAndRhythm,
       acoustics: acousticBaseline.acoustics,
+      engineTelemetry,
       quotaRemaining: remaining,
       isAdmin,
       timestamp: new Date().toISOString(),
