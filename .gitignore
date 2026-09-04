@@ -31,3 +31,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+scratch/
+production_test_results.json

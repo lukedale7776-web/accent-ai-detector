@@ -2,6 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Square, Play, Pause, RotateCcw, Sparkles, MessageSquare, ShieldCheck, Lock } from 'lucide-react';
+import { AcousticFeatures } from '@/lib/types';
+import { processAudioBlob } from '@/lib/audioConverter';
 
 interface AudioRecorderProps {
   onAudioReady: (
@@ -9,7 +11,7 @@ interface AudioRecorderProps {
     fileName: string,
     transcript?: string,
     duration?: number,
-    acoustics?: { zeroCrossingRate?: number; speechRhythmRatio?: number }
+    acoustics?: AcousticFeatures
   ) => void;
   disabled?: boolean;
 }
@@ -140,25 +142,38 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
         if (e.data.size > 0) chunks.push(e.data);
       };
 
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        setAudioBlob(blob);
+      recorder.onstop = async () => {
+        const rawBlob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(rawBlob);
+        setAudioBlob(rawBlob);
         setAudioUrl(url);
 
-        const totalSamples = Math.max(1, sampleCountRef.current);
-        const measuredZcr = Number((zcrCountRef.current / totalSamples).toFixed(4));
-        const measuredRhythm = Number(
-          Math.min(
-            0.52,
-            Math.max(0.12, measuredZcr * 1.45 + (diffSumRef.current / Math.max(1e-4, sumSquaresRef.current)) * 0.04)
-          ).toFixed(4)
-        );
-
-        onAudioReady(blob, 'recorded_audio.webm', transcriptBufferRef.current, recordingTime, {
-          zeroCrossingRate: measuredZcr,
-          speechRhythmRatio: measuredRhythm,
-        });
+        try {
+          const { wavBlob, features } = await processAudioBlob(rawBlob);
+          const wavUrl = URL.createObjectURL(wavBlob);
+          setAudioBlob(wavBlob);
+          setAudioUrl(wavUrl);
+          onAudioReady(wavBlob, 'recorded_audio.wav', transcriptBufferRef.current, features.durationSec, features);
+        } catch {
+          // Fallback if client decoding fails
+          const totalSamples = Math.max(1, sampleCountRef.current);
+          const measuredZcr = Number((zcrCountRef.current / totalSamples).toFixed(4));
+          const measuredRhythm = Number(
+            Math.min(
+              0.52,
+              Math.max(0.12, measuredZcr * 1.45 + (diffSumRef.current / Math.max(1e-4, sumSquaresRef.current)) * 0.04)
+            ).toFixed(4)
+          );
+          onAudioReady(rawBlob, 'recorded_audio.webm', transcriptBufferRef.current, recordingTime, {
+            durationSec: recordingTime,
+            rms: 0.12,
+            zeroCrossingRate: measuredZcr,
+            highFreqRatio: 1.0,
+            estimatedPitchHz: 140,
+            syllableRate: 4.0,
+            speechRhythmRatio: measuredRhythm,
+          });
+        }
       };
 
       recorder.start(100);

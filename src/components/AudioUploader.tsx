@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { UploadCloud, FileAudio, CheckCircle, AlertCircle, Trash2, Play, Pause, ShieldCheck } from 'lucide-react';
+import { UploadCloud, FileAudio, CheckCircle, AlertCircle, Trash2, Play, Pause, ShieldCheck, Activity } from 'lucide-react';
+import { AcousticFeatures } from '@/lib/types';
+import { processAudioBlob } from '@/lib/audioConverter';
 
 interface AudioUploaderProps {
   onAudioReady: (
@@ -9,7 +11,7 @@ interface AudioUploaderProps {
     fileName: string,
     transcript?: string,
     duration?: number,
-    acoustics?: { zeroCrossingRate: number; speechRhythmRatio: number }
+    acoustics?: AcousticFeatures
   ) => void;
   disabled?: boolean;
 }
@@ -17,15 +19,12 @@ interface AudioUploaderProps {
 export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disabled }) => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [processedWavBlob, setProcessedWavBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [optionalTranscript, setOptionalTranscript] = useState<string>('');
-  const [extractedMetrics, setExtractedMetrics] = useState<{
-    duration?: number;
-    zeroCrossingRate?: number;
-    speechRhythmRatio?: number;
-  }>({});
+  const [extractedMetrics, setExtractedMetrics] = useState<AcousticFeatures | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
@@ -61,40 +60,15 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
     setSelectedFile(file);
     setAudioUrl(url);
 
-    // Extract real client-side PCM acoustic data via Web Audio API AudioContext
+    // Decode any audio format client-side into 16kHz mono WAV & compute all acoustic dimensions
     try {
-      const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-      const arrayBuf = await file.arrayBuffer();
-      const audioBuffer = await audioCtx.decodeAudioData(arrayBuf.slice(0));
-      const duration = Number(audioBuffer.duration.toFixed(2));
-      const channelData = audioBuffer.getChannelData(0);
-      const step = Math.max(1, Math.floor(channelData.length / 32768));
-      let zcrCount = 0;
-      let diffSum = 0;
-      let prev = 0;
-      let sampleCount = 0;
-
-      for (let i = 0; i < channelData.length; i += step) {
-        const val = channelData[i];
-        if (i > 0 && ((val >= 0 && prev < 0) || (val < 0 && prev >= 0))) {
-          zcrCount++;
-        }
-        diffSum += Math.abs(val - prev);
-        prev = val;
-        sampleCount++;
-      }
-
-      const zcr = Number((zcrCount / Math.max(1, sampleCount)).toFixed(4));
-      const rhythm = Number(Math.min(0.55, Math.max(0.12, zcr * 1.45 + (diffSum / Math.max(1, sampleCount)) * 0.35)).toFixed(4));
-      audioCtx.close().catch(() => {});
-
-      const metrics = { duration, zeroCrossingRate: zcr, speechRhythmRatio: rhythm };
-      setExtractedMetrics(metrics);
-      onAudioReady(file, file.name, optionalTranscript || undefined, duration, {
-        zeroCrossingRate: zcr,
-        speechRhythmRatio: rhythm,
-      });
+      const { wavBlob, features } = await processAudioBlob(file);
+      setProcessedWavBlob(wavBlob);
+      setExtractedMetrics(features);
+      const outName = file.name.replace(/\.[^/.]+$/, '') + '.wav';
+      onAudioReady(wavBlob, outName, optionalTranscript || undefined, features.durationSec, features);
     } catch {
+      // Fallback if client Web Audio context is unavailable
       onAudioReady(file, file.name, optionalTranscript || undefined);
     }
   };
@@ -102,17 +76,14 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
   const handleTranscriptChange = (text: string) => {
     setOptionalTranscript(text);
     if (selectedFile) {
+      const blobToSend = processedWavBlob || selectedFile;
+      const nameToSend = processedWavBlob ? selectedFile.name.replace(/\.[^/.]+$/, '') + '.wav' : selectedFile.name;
       onAudioReady(
-        selectedFile,
-        selectedFile.name,
+        blobToSend,
+        nameToSend,
         text || undefined,
-        extractedMetrics.duration,
-        extractedMetrics.zeroCrossingRate && extractedMetrics.speechRhythmRatio
-          ? {
-              zeroCrossingRate: extractedMetrics.zeroCrossingRate,
-              speechRhythmRatio: extractedMetrics.speechRhythmRatio,
-            }
-          : undefined
+        extractedMetrics?.durationSec,
+        extractedMetrics || undefined
       );
     }
   };
@@ -134,12 +105,13 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
 
   const handleRemove = () => {
     setSelectedFile(null);
+    setProcessedWavBlob(null);
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null);
     setIsPlaying(false);
     setErrorMsg(null);
     setOptionalTranscript('');
-    setExtractedMetrics({});
+    setExtractedMetrics(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -204,8 +176,21 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
                 </div>
                 <p className="text-xs text-slate-400">
                   {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                  {extractedMetrics.duration ? ` • ${extractedMetrics.duration}s` : ''} • Ready for analysis
+                  {extractedMetrics?.durationSec ? ` • ${extractedMetrics.durationSec}s` : ''} • Ready for analysis
                 </p>
+                {extractedMetrics && (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5 text-[10px] text-indigo-300">
+                    <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">
+                      Pitch: {extractedMetrics.estimatedPitchHz} Hz
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">
+                      ZCR: {extractedMetrics.zeroCrossingRate}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">
+                      Rhythm: {extractedMetrics.speechRhythmRatio}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

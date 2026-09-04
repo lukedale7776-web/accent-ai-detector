@@ -23,7 +23,7 @@ import { AudioUploader } from '@/components/AudioUploader';
 import { AnalysisResultView } from '@/components/AnalysisResultView';
 import { AdminModal } from '@/components/AdminModal';
 import { AuthModal } from '@/components/AuthModal';
-import { AccentAnalysisResponse, QuotaStatus } from '@/lib/types';
+import { AccentAnalysisResponse, QuotaStatus, AcousticFeatures } from '@/lib/types';
 import { User } from '@/lib/auth';
 
 const jsonLdData = {
@@ -183,14 +183,14 @@ export default function Home() {
   };
 
   const [audioDuration, setAudioDuration] = useState<number | undefined>();
-  const [clientAcoustics, setClientAcoustics] = useState<{ zeroCrossingRate?: number; speechRhythmRatio?: number } | undefined>();
+  const [clientAcoustics, setClientAcoustics] = useState<AcousticFeatures | undefined>();
 
   const handleAudioReady = (
     blob: Blob,
     name: string,
     transcript?: string,
     duration?: number,
-    acoustics?: { zeroCrossingRate?: number; speechRhythmRatio?: number }
+    acoustics?: AcousticFeatures
   ) => {
     setAudioBlob(blob);
     setFileName(name);
@@ -223,11 +223,25 @@ export default function Home() {
       if (audioDuration) {
         formData.append('duration', audioDuration.toString());
       }
-      if (clientAcoustics?.zeroCrossingRate) {
-        formData.append('zeroCrossingRate', clientAcoustics.zeroCrossingRate.toString());
-      }
-      if (clientAcoustics?.speechRhythmRatio) {
-        formData.append('speechRhythmRatio', clientAcoustics.speechRhythmRatio.toString());
+      if (clientAcoustics) {
+        if (Number.isFinite(clientAcoustics.rms)) {
+          formData.append('rms', clientAcoustics.rms.toString());
+        }
+        if (Number.isFinite(clientAcoustics.zeroCrossingRate)) {
+          formData.append('zeroCrossingRate', clientAcoustics.zeroCrossingRate.toString());
+        }
+        if (Number.isFinite(clientAcoustics.highFreqRatio)) {
+          formData.append('highFreqRatio', clientAcoustics.highFreqRatio.toString());
+        }
+        if (Number.isFinite(clientAcoustics.estimatedPitchHz)) {
+          formData.append('estimatedPitchHz', clientAcoustics.estimatedPitchHz.toString());
+        }
+        if (Number.isFinite(clientAcoustics.speechRhythmRatio)) {
+          formData.append('speechRhythmRatio', clientAcoustics.speechRhythmRatio.toString());
+        }
+        if (Number.isFinite(clientAcoustics.syllableRate)) {
+          formData.append('syllableRate', clientAcoustics.syllableRate.toString());
+        }
       }
 
       const headers: Record<string, string> = {};

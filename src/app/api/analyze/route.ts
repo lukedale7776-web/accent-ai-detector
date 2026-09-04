@@ -29,12 +29,21 @@ export async function POST(request: NextRequest) {
     const file = (formData.get('file') || formData.get('audio')) as File | null;
     const clientTranscript = (formData.get('transcript') as string | null) || undefined;
     const rawDur = formData.get('duration');
+    const rawRms = formData.get('rms');
     const rawZcr = formData.get('zeroCrossingRate');
+    const rawHighFreq = formData.get('highFreqRatio');
+    const rawPitch = formData.get('estimatedPitchHz');
     const rawRhythm = formData.get('speechRhythmRatio');
+    const rawSyllable = formData.get('syllableRate');
 
-    const clientDuration = rawDur && Number.isFinite(Number(rawDur)) ? Number(rawDur) : undefined;
-    const clientZcr = rawZcr && Number.isFinite(Number(rawZcr)) ? Number(rawZcr) : undefined;
-    const clientRhythm = rawRhythm && Number.isFinite(Number(rawRhythm)) ? Number(rawRhythm) : undefined;
+    const clientAcoustics: Record<string, number> = {};
+    if (rawDur && Number.isFinite(Number(rawDur))) clientAcoustics.durationSec = Number(rawDur);
+    if (rawRms && Number.isFinite(Number(rawRms))) clientAcoustics.rms = Number(rawRms);
+    if (rawZcr && Number.isFinite(Number(rawZcr))) clientAcoustics.zeroCrossingRate = Number(rawZcr);
+    if (rawHighFreq && Number.isFinite(Number(rawHighFreq))) clientAcoustics.highFreqRatio = Number(rawHighFreq);
+    if (rawPitch && Number.isFinite(Number(rawPitch))) clientAcoustics.estimatedPitchHz = Number(rawPitch);
+    if (rawRhythm && Number.isFinite(Number(rawRhythm))) clientAcoustics.speechRhythmRatio = Number(rawRhythm);
+    if (rawSyllable && Number.isFinite(Number(rawSyllable))) clientAcoustics.syllableRate = Number(rawSyllable);
 
     if (!file) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
@@ -86,11 +95,6 @@ export async function POST(request: NextRequest) {
     else if (isWebm) mimeType = 'audio/webm';
 
     // 1. Run Authentic Acoustic Dialectology Engine
-    const clientAcoustics: Record<string, number> = {};
-    if (clientDuration !== undefined) clientAcoustics.durationSec = clientDuration;
-    if (clientZcr !== undefined) clientAcoustics.zeroCrossingRate = clientZcr;
-    if (clientRhythm !== undefined) clientAcoustics.speechRhythmRatio = clientRhythm;
-
     const acousticBaseline = classifySpeechDialect(
       buffer,
       mimeType,
@@ -165,9 +169,9 @@ Return ONLY valid JSON matching:
       if (!hasTranscript) return null;
       try {
         return await analyzeWithKimiK3(safeTranscript!, {
-          durationSec: clientDuration || acousticBaseline.acoustics?.durationSec || 3,
-          zeroCrossingRate: clientZcr || acousticBaseline.acoustics?.zeroCrossingRate,
-          speechRhythmRatio: clientRhythm || acousticBaseline.acoustics?.speechRhythmRatio,
+          durationSec: acousticBaseline.acoustics?.durationSec || 3,
+          zeroCrossingRate: acousticBaseline.acoustics?.zeroCrossingRate,
+          speechRhythmRatio: acousticBaseline.acoustics?.speechRhythmRatio,
           estimatedPitchHz: acousticBaseline.acoustics?.estimatedPitchHz,
           highFreqRatio: acousticBaseline.acoustics?.highFreqRatio,
         });

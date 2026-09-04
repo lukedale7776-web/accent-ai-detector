@@ -36,9 +36,7 @@ export async function analyzeWithKimiK3(
     highFreqRatio?: number;
   }
 ): Promise<KimiDialectAnalysis | null> {
-  const apiKey =
-    process.env.NVIDIA_API_KEY ||
-    '-2Bsy9s0_ri26gvw9yXsdnaJx_K08rLJqEF-a6SAchND89o4FbqlolDsHcpIa0';
+  const apiKey = process.env.NVIDIA_API_KEY;
 
   if (!apiKey) return null;
 
