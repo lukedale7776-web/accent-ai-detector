@@ -185,6 +185,16 @@ export default function Home() {
   const [audioDuration, setAudioDuration] = useState<number | undefined>();
   const [clientAcoustics, setClientAcoustics] = useState<AcousticFeatures | undefined>();
 
+  const handleReset = () => {
+    setAudioBlob(null);
+    setFileName('audio_sample.webm');
+    setLiveTranscript('');
+    setAudioDuration(undefined);
+    setClientAcoustics(undefined);
+    setAnalysisResult(null);
+    setError(null);
+  };
+
   const handleAudioReady = (
     blob: Blob,
     name: string,
@@ -198,6 +208,7 @@ export default function Home() {
     if (duration !== undefined) setAudioDuration(duration);
     if (acoustics) setClientAcoustics(acoustics);
     setError(null);
+    setAnalysisResult(null); // Clear previous result when fresh audio is ready
   };
 
   const runAnalysis = async () => {
@@ -384,8 +395,10 @@ export default function Home() {
           <div className="flex items-center p-1.5 rounded-2xl bg-slate-900/80 border border-white/10">
             <button
               onClick={() => {
-                setActiveTab('record');
-                setError(null);
+                if (activeTab !== 'record') {
+                  handleReset();
+                  setActiveTab('record');
+                }
               }}
               className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'record'
@@ -399,8 +412,10 @@ export default function Home() {
 
             <button
               onClick={() => {
-                setActiveTab('upload');
-                setError(null);
+                if (activeTab !== 'upload') {
+                  handleReset();
+                  setActiveTab('upload');
+                }
               }}
               className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'upload'
@@ -417,9 +432,9 @@ export default function Home() {
         {/* Audio Input Box */}
         <div className="max-w-2xl mx-auto w-full">
           {activeTab === 'record' ? (
-            <AudioRecorder onAudioReady={handleAudioReady} disabled={isAnalyzing} />
+            <AudioRecorder onAudioReady={handleAudioReady} onReset={handleReset} disabled={isAnalyzing} />
           ) : (
-            <AudioUploader onAudioReady={handleAudioReady} disabled={isAnalyzing} />
+            <AudioUploader onAudioReady={handleAudioReady} onReset={handleReset} disabled={isAnalyzing} />
           )}
 
           {/* Action Button */}
@@ -464,7 +479,7 @@ export default function Home() {
         {/* Analysis Results View */}
         {analysisResult && (
           <div id="results" className="pt-4">
-            <AnalysisResultView result={analysisResult} />
+            <AnalysisResultView result={analysisResult} onReset={handleReset} />
           </div>
         )}
 

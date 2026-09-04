@@ -13,10 +13,11 @@ interface AudioRecorderProps {
     duration?: number,
     acoustics?: AcousticFeatures
   ) => void;
+  onReset?: () => void;
   disabled?: boolean;
 }
 
-export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disabled }) => {
+export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, onReset, disabled }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -49,30 +50,43 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
   }, []);
 
   const stopStreams = () => {
-    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
     }
     if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
       audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
     }
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.stop();
-      } catch {
-        // ignore
-      }
+        recognitionRef.current.abort();
+      } catch {}
+      recognitionRef.current = null;
     }
   };
 
   const startRecording = async () => {
     try {
+      // Ensure any existing streams/contexts are closed before starting fresh
+      stopStreams();
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
       setAudioUrl(null);
       setAudioBlob(null);
       setRecordingTime(0);
       setLiveTranscript('');
       transcriptBufferRef.current = '';
+      onReset?.();
 
       zcrCountRef.current = 0;
       sampleCountRef.current = 0;
@@ -80,7 +94,13 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
       sumSquaresRef.current = 0;
       prevSampleRef.current = 0;
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: false, // keep natural vocal tract formants
+          autoGainControl: true,
+        },
+      });
       streamRef.current = stream;
 
       // In-browser SpeechRecognition if supported
@@ -115,8 +135,10 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
       }
 
       // Audio Context for visualizer and live acoustic metrics
-      const audioContext = new (window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const audioContext = new AudioContextClass();
       audioContextRef.current = audioContext;
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 512;
@@ -127,23 +149,46 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
 
       drawVisualizer();
 
-      // Determine supported mime type
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/mp4')
-        ? 'audio/mp4'
-        : 'audio/webm';
+      // Determine supported mime type across browsers (Chrome, Safari, Firefox)
+      let mimeType = 'audio/webm';
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+          mimeType = 'audio/webm;codecs=opus';
+        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+          mimeType = 'audio/webm';
+        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          mimeType = 'audio/mp4';
+        } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+          mimeType = 'audio/aac';
+        }
+      }
 
-      const recorder = new MediaRecorder(stream, { mimeType });
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       mediaRecorderRef.current = recorder;
 
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
+        if (e.data && e.data.size > 0) chunks.push(e.data);
       };
 
       recorder.onstop = async () => {
+        // Safely stop stream tracks and visualizer AFTER all data chunks are captured
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+          streamRef.current = null;
+        }
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close().catch(() => {});
+          audioContextRef.current = null;
+        }
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+
         const rawBlob = new Blob(chunks, { type: mimeType });
+        if (rawBlob.size === 0) return;
+
         const url = URL.createObjectURL(rawBlob);
         setAudioBlob(rawBlob);
         setAudioUrl(url);
@@ -155,7 +200,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
           setAudioUrl(wavUrl);
           onAudioReady(wavBlob, 'recorded_audio.wav', transcriptBufferRef.current, features.durationSec, features);
         } catch {
-          // Fallback if client decoding fails
+          // Fallback if client audio decoding fails
           const totalSamples = Math.max(1, sampleCountRef.current);
           const measuredZcr = Number((zcrCountRef.current / totalSamples).toFixed(4));
           const measuredRhythm = Number(
@@ -164,8 +209,9 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
               Math.max(0.12, measuredZcr * 1.45 + (diffSumRef.current / Math.max(1e-4, sumSquaresRef.current)) * 0.04)
             ).toFixed(4)
           );
-          onAudioReady(rawBlob, 'recorded_audio.webm', transcriptBufferRef.current, recordingTime, {
-            durationSec: recordingTime,
+          const ext = mimeType.includes('mp4') ? 'm4a' : 'webm';
+          onAudioReady(rawBlob, `recorded_audio.${ext}`, transcriptBufferRef.current, recordingTime, {
+            durationSec: Math.max(1, recordingTime),
             rms: 0.12,
             zeroCrossingRate: measuredZcr,
             highFreqRatio: 1.0,
@@ -192,10 +238,21 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    setIsRecording(false);
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+      recognitionRef.current = null;
+    }
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      stopStreams();
     }
   };
 
@@ -267,6 +324,9 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
 
   const resetRecording = () => {
     stopStreams();
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
     setAudioUrl(null);
     setAudioBlob(null);
     setRecordingTime(0);
@@ -274,6 +334,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({ onAudioReady, disa
     setIsPlaying(false);
     setLiveTranscript('');
     transcriptBufferRef.current = '';
+    onReset?.();
   };
 
   const formatTime = (seconds: number) => {

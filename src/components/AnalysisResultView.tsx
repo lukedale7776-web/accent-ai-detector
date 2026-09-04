@@ -14,15 +14,17 @@ import {
   BarChart3,
   Share2,
   ExternalLink,
+  RotateCcw,
 } from 'lucide-react';
 import { AccentAnalysisResponse } from '@/lib/types';
 import { CountryMotionGraphic } from './CountryMotionGraphic';
 
 interface AnalysisResultViewProps {
   result: AccentAnalysisResponse;
+  onReset?: () => void;
 }
 
-export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({ result }) => {
+export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({ result, onReset }) => {
   const [copied, setCopied] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
 
@@ -89,6 +91,15 @@ Summary: ${result.verdictSummary}`;
                       <Sparkles className="w-3 h-3 mr-1 text-indigo-400" />
                       {result.engineTelemetry.primaryEngineUsed}
                     </span>
+                  )}
+                  {onReset && (
+                    <button
+                      onClick={onReset}
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all hover:scale-105 active:scale-95"
+                    >
+                      <RotateCcw className="w-3 h-3 mr-1" />
+                      Test Another
+                    </button>
                   )}
                 </div>
                 <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-0.5">
@@ -348,6 +359,22 @@ Summary: ${result.verdictSummary}`;
           &ldquo;{result.transcription}&rdquo;
         </blockquote>
       </div>
+
+      {/* Quick Reset Button to Analyze Another Voice */}
+      {onReset && (
+        <div className="pt-4 flex justify-center">
+          <button
+            onClick={() => {
+              onReset();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="flex items-center space-x-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Analyze Another Voice / Recording</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

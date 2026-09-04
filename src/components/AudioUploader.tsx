@@ -13,10 +13,11 @@ interface AudioUploaderProps {
     duration?: number,
     acoustics?: AcousticFeatures
   ) => void;
+  onReset?: () => void;
   disabled?: boolean;
 }
 
-export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disabled }) => {
+export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, onReset, disabled }) => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processedWavBlob, setProcessedWavBlob] = useState<Blob | null>(null);
@@ -41,6 +42,7 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
 
   const validateAndProcessFile = async (file: File) => {
     setErrorMsg(null);
+    onReset?.();
 
     // Max 25MB
     if (file.size > 25 * 1024 * 1024) {
@@ -56,6 +58,7 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
       return;
     }
 
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
     const url = URL.createObjectURL(file);
     setSelectedFile(file);
     setAudioUrl(url);
@@ -99,7 +102,10 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      validateAndProcessFile(e.target.files[0]);
+      const file = e.target.files[0];
+      validateAndProcessFile(file);
+      // Reset input value so selecting the same file triggers change again
+      e.target.value = '';
     }
   };
 
@@ -113,6 +119,7 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, disa
     setOptionalTranscript('');
     setExtractedMetrics(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    onReset?.();
   };
 
   const togglePlayback = () => {
