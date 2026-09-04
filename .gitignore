@@ -33,3 +33,4 @@ yarn-error.log*
 next-env.d.ts
 scratch/
 production_test_results.json
+.env*
