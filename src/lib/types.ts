@@ -55,6 +55,9 @@ export interface PraatFeatures {
 
 export interface AccentAnalysisResponse {
   primaryCountry: string;
+  predicted_accent?: string;
+  predicted_subregion?: string;
+  features?: any;
   countryFlag: string;
   regionOrDialect: string;
   confidenceScore: number;

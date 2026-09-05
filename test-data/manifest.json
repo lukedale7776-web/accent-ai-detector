@@ -1,0 +1,212 @@
+[
+  {
+    "file": "sample_001.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Standard Southern British (RP)",
+    "speaker_gender": "M",
+    "sample_text": "Right, brilliant. Let us queue up and grab a proper biscuit and a cup of tea before the train departs from Waterloo."
+  },
+  {
+    "file": "sample_002.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Modern RP / Southern British",
+    "speaker_gender": "F",
+    "sample_text": "Honestly that was rather splendid, I fancy we ought to stroll down to the market and fetch some fresh scones."
+  },
+  {
+    "file": "sample_003.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Estuary / London",
+    "speaker_gender": "M",
+    "sample_text": "Look mate, I ain't got a clue what you're talking about, but it's totally wicked innit, let's sort it out now."
+  },
+  {
+    "file": "sample_004.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "British English",
+    "speaker_gender": "F",
+    "sample_text": "Mind the gap please, we are heading towards Piccadilly and the weather forecast said it would drizzle this afternoon."
+  },
+  {
+    "file": "sample_005.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Scottish / Northern British",
+    "speaker_gender": "F",
+    "sample_text": "Aye, it's a braw bricht moonlicht nicht tonight, we can walk up the glen and see the loch before dark."
+  },
+  {
+    "file": "sample_006.wav",
+    "true_accent": "United States",
+    "true_region": "General American",
+    "speaker_gender": "M",
+    "sample_text": "Hey everyone, I am heading over to the gas station to grab some chips and soda for the game tonight."
+  },
+  {
+    "file": "sample_007.wav",
+    "true_accent": "United States",
+    "true_region": "General American",
+    "speaker_gender": "F",
+    "sample_text": "We need to finish this presentation by four o'clock so our team can review the quarterly revenue report."
+  },
+  {
+    "file": "sample_008.wav",
+    "true_accent": "United States",
+    "true_region": "Southern US",
+    "speaker_gender": "M",
+    "sample_text": "Well now y'all, we're fixin' to fry up some catfish and hushpuppies down by the porch this evening."
+  },
+  {
+    "file": "sample_009.wav",
+    "true_accent": "United States",
+    "true_region": "Midwestern American",
+    "speaker_gender": "F",
+    "sample_text": "Oh doncha know, it's pretty cold out on the lake today, let me grab my sweater from the back of the car."
+  },
+  {
+    "file": "sample_010.wav",
+    "true_accent": "United States",
+    "true_region": "Standard American",
+    "speaker_gender": "M",
+    "sample_text": "The highway traffic was pretty backed up near downtown, but navigation routed us through the side streets."
+  },
+  {
+    "file": "sample_011.wav",
+    "true_accent": "Ireland",
+    "true_region": "Hiberno-English (Dublin)",
+    "speaker_gender": "F",
+    "sample_text": "What's the craic lads? That was grand altogether, proper sound and deadly banter down in the pub."
+  },
+  {
+    "file": "sample_012.wav",
+    "true_accent": "Ireland",
+    "true_region": "Irish English",
+    "speaker_gender": "F",
+    "sample_text": "I'm telling you boy, the rain was pouring down in buckets, but we had ourselves a lovely warm stew anyway."
+  },
+  {
+    "file": "sample_013.wav",
+    "true_accent": "Australia",
+    "true_region": "General Australian",
+    "speaker_gender": "F",
+    "sample_text": "G'day mate! Grab a cold tinny from the esky this arvo, no worries, we will chuck some snags on the barbie."
+  },
+  {
+    "file": "sample_014.wav",
+    "true_accent": "Australia",
+    "true_region": "Broad Australian",
+    "speaker_gender": "F",
+    "sample_text": "Fair dinkum mate, that bloke was flat out like a lizard drinking, we reckon he needs a proper holiday."
+  },
+  {
+    "file": "sample_015.wav",
+    "true_accent": "South Africa",
+    "true_region": "South African English",
+    "speaker_gender": "F",
+    "sample_text": "Howzit boet! Let's fire up the braai now-now, it's going to be lekker having biltong with our mates."
+  },
+  {
+    "file": "sample_016.wav",
+    "true_accent": "South Africa",
+    "true_region": "South African English",
+    "speaker_gender": "F",
+    "sample_text": "We were stuck at the robot for twenty minutes while the minibus taxi was passing by, eish what a day."
+  },
+  {
+    "file": "sample_017.wav",
+    "true_accent": "India",
+    "true_region": "Indian English (Hindi Substrate)",
+    "speaker_gender": "M",
+    "sample_text": "Kindly do the needful and revert back at the earliest. We will prepone the meeting so there is no confusion."
+  },
+  {
+    "file": "sample_018.wav",
+    "true_accent": "India",
+    "true_region": "Indian English",
+    "speaker_gender": "F",
+    "sample_text": "Please pass me that file only, I have already updated all the details in the system yesterday itself."
+  },
+  {
+    "file": "sample_019.wav",
+    "true_accent": "India",
+    "true_region": "Indian English",
+    "speaker_gender": "M",
+    "sample_text": "Today itself we are completing the entire deliverables, no tension at all, everything is in proper track."
+  },
+  {
+    "file": "sample_020.wav",
+    "true_accent": "France",
+    "true_region": "French Substrate English",
+    "speaker_gender": "M",
+    "sample_text": "Bonjour! I think this restaurant has very good croissant and baguette, we should order a cafe au lait."
+  },
+  {
+    "file": "sample_021.wav",
+    "true_accent": "France",
+    "true_region": "French Substrate English",
+    "speaker_gender": "F",
+    "sample_text": "Excuse me, could you tell me where is the Louvre museum? We have a reservation for this afternoon."
+  },
+  {
+    "file": "sample_022.wav",
+    "true_accent": "Germany",
+    "true_region": "German Substrate English",
+    "speaker_gender": "F",
+    "sample_text": "Guten Tag! Everything is organized strictly according to the schedule and the technical specifications."
+  },
+  {
+    "file": "sample_023.wav",
+    "true_accent": "Germany",
+    "true_region": "German Substrate English",
+    "speaker_gender": "M",
+    "sample_text": "We must verify the engineering tolerances very carefully before starting the manufacturing process."
+  },
+  {
+    "file": "sample_024.wav",
+    "true_accent": "Spain",
+    "true_region": "Spanish Substrate English",
+    "speaker_gender": "F",
+    "sample_text": "Hola! Let us go to the plaza to eat some delicious tapas and paella with our good friends tonight."
+  },
+  {
+    "file": "sample_025.wav",
+    "true_accent": "Spain",
+    "true_region": "Spanish Substrate English",
+    "speaker_gender": "M",
+    "sample_text": "The football match yesterday was incredible, our team played with great passion until the final minute."
+  },
+  {
+    "file": "sample_026.wav",
+    "true_accent": "Japan",
+    "true_region": "Japanese Substrate English",
+    "speaker_gender": "F",
+    "sample_text": "Hello, thank you very much for your kind support. We will prepare the bullet train tickets for Tokyo."
+  },
+  {
+    "file": "sample_027.wav",
+    "true_accent": "Japan",
+    "true_region": "Japanese Substrate English",
+    "speaker_gender": "M",
+    "sample_text": "Good morning, our team has arrived at the convention center and we are ready for the presentation."
+  },
+  {
+    "file": "sample_028.wav",
+    "true_accent": "Brazil",
+    "true_region": "Brazilian Portuguese Substrate",
+    "speaker_gender": "F",
+    "sample_text": "Hello! We love to celebrate on the beach in Rio de Janeiro with wonderful samba music and carnival."
+  },
+  {
+    "file": "sample_029.wav",
+    "true_accent": "Brazil",
+    "true_region": "Brazilian Portuguese Substrate",
+    "speaker_gender": "M",
+    "sample_text": "The atmosphere at the stadium was unbelievable, everyone was dancing and cheering for our national team."
+  },
+  {
+    "file": "sample_030.wav",
+    "true_accent": "Italy",
+    "true_region": "Italian Substrate English",
+    "speaker_gender": "F",
+    "sample_text": "Ciao! We are making fresh handmade pasta and authentic espresso for the family dinner this evening."
+  }
+]

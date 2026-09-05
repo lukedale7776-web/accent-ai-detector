@@ -37,4 +37,4 @@ production_test_results.json
 praat-service/venv/
 __pycache__/
 *.pyc
-
+*.zip

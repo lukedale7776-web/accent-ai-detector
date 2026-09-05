@@ -1,0 +1,1442 @@
+[
+  {
+    "file": "sample_001.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Standard Southern British (RP)",
+    "speaker_gender": "M",
+    "predicted_accent": "United Kingdom",
+    "predicted_subregion": "Standard Southern British (RP)",
+    "confidence_score": 86,
+    "praat_features": {
+      "duration_sec": 6.713375,
+      "pitch": {
+        "mean_hz": 121.5578649982418,
+        "std_hz": 68.03147248430186,
+        "min_hz": 75.51776472470895,
+        "max_hz": 576.505025364552
+      },
+      "formants": {
+        "f1_mean": 581.9213935142886,
+        "f2_mean": 1607.011097845722,
+        "f3_mean": 2714.835862215495
+      },
+      "voice_quality": {
+        "jitter_local": 0.019716681454172744,
+        "shimmer_local": 0.10141153571857414,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 65.63098823020972,
+        "std_db": 17.75700211986332
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_002.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Modern RP / Southern British",
+    "speaker_gender": "F",
+    "predicted_accent": "United Kingdom",
+    "predicted_subregion": "Standard Southern British (Received Pronunciation)",
+    "confidence_score": 83,
+    "praat_features": {
+      "duration_sec": 6.8785,
+      "pitch": {
+        "mean_hz": 247.23886566034764,
+        "std_hz": 26.139699114057507,
+        "min_hz": 149.10330791673897,
+        "max_hz": 317.981559797893
+      },
+      "formants": {
+        "f1_mean": 633.1930860549794,
+        "f2_mean": 1734.291094004533,
+        "f3_mean": 3031.510797101354
+      },
+      "voice_quality": {
+        "jitter_local": 0.013913382862441027,
+        "shimmer_local": 0.0606991209947315,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 42.151235325330056,
+        "std_db": 90.71413318214404
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_003.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Estuary / London",
+    "speaker_gender": "M",
+    "predicted_accent": "United Kingdom",
+    "predicted_subregion": "Estuary English / Cockney",
+    "confidence_score": 83,
+    "praat_features": {
+      "duration_sec": 6.9423125,
+      "pitch": {
+        "mean_hz": 122.17497085916871,
+        "std_hz": 127.68295453536868,
+        "min_hz": 74.97442774410051,
+        "max_hz": 594.7600289261578
+      },
+      "formants": {
+        "f1_mean": 599.8940735006385,
+        "f2_mean": 1549.7389006356134,
+        "f3_mean": 2504.2612840718907
+      },
+      "voice_quality": {
+        "jitter_local": 0.01588916976631719,
+        "shimmer_local": 0.06740989144918372,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 33.82957299614376,
+        "std_db": 99.33267067707513
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_004.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "British English",
+    "speaker_gender": "F",
+    "predicted_accent": "Japan",
+    "predicted_subregion": "Japanese-influenced English (Mora-timed substrate)",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 6.9263125,
+      "pitch": {
+        "mean_hz": 182.24039155028998,
+        "std_hz": 18.554384741909292,
+        "min_hz": 119.88548896637671,
+        "max_hz": 226.65832100457516
+      },
+      "formants": {
+        "f1_mean": 578.2313124585482,
+        "f2_mean": 1821.379821454703,
+        "f3_mean": 3019.942322847475
+      },
+      "voice_quality": {
+        "jitter_local": 0.010498015942189451,
+        "shimmer_local": 0.05843381893829776,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 38.33489424247876,
+        "std_db": 98.95559944186937
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_005.wav",
+    "true_accent": "United Kingdom",
+    "true_region": "Scottish / Northern British",
+    "speaker_gender": "F",
+    "predicted_accent": "United Kingdom",
+    "predicted_subregion": "Scottish English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 6.2385625,
+      "pitch": {
+        "mean_hz": 294.62807904273626,
+        "std_hz": 34.56793502407052,
+        "min_hz": 142.05560801538178,
+        "max_hz": 341.91809652643775
+      },
+      "formants": {
+        "f1_mean": 525.2903149605354,
+        "f2_mean": 1424.6397287540115,
+        "f3_mean": 2551.4833861704637
+      },
+      "voice_quality": {
+        "jitter_local": 0.03576072934756881,
+        "shimmer_local": 0.16378292177641146,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 31.941951232524925,
+        "std_db": 104.37544149866525
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.6-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_006.wav",
+    "true_accent": "United States",
+    "true_region": "General American",
+    "speaker_gender": "M",
+    "predicted_accent": "United States",
+    "predicted_subregion": "General American",
+    "confidence_score": 86,
+    "praat_features": {
+      "duration_sec": 6.5545625,
+      "pitch": {
+        "mean_hz": 107.20309528952922,
+        "std_hz": 14.119659302495874,
+        "min_hz": 75.92089831078684,
+        "max_hz": 150.75731465325208
+      },
+      "formants": {
+        "f1_mean": 643.5557103817116,
+        "f2_mean": 1732.399029705555,
+        "f3_mean": 2779.6197762614174
+      },
+      "voice_quality": {
+        "jitter_local": 0.0143073333350041,
+        "shimmer_local": 0.03988910605983692,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 60.061003685390624,
+        "std_db": 55.47517924093574
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_007.wav",
+    "true_accent": "United States",
+    "true_region": "General American",
+    "speaker_gender": "F",
+    "predicted_accent": "United States",
+    "predicted_subregion": "General American",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 5.5055,
+      "pitch": {
+        "mean_hz": 169.78625447284386,
+        "std_hz": 20.282966991333765,
+        "min_hz": 102.15794541917975,
+        "max_hz": 227.817126610159
+      },
+      "formants": {
+        "f1_mean": 614.6441537115716,
+        "f2_mean": 1826.174998781766,
+        "f3_mean": 2854.8487750924382
+      },
+      "voice_quality": {
+        "jitter_local": 0.010721326917430007,
+        "shimmer_local": 0.0590352044307964,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 74.642911267228,
+        "std_db": 9.70537362225167
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.6-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_008.wav",
+    "true_accent": "United States",
+    "true_region": "Southern US",
+    "speaker_gender": "M",
+    "predicted_accent": "United States",
+    "predicted_subregion": "Southern American English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 6.4679375,
+      "pitch": {
+        "mean_hz": 83.24398150482168,
+        "std_hz": 5.095828613392806,
+        "min_hz": 75.15719859128095,
+        "max_hz": 93.98235361734393
+      },
+      "formants": {
+        "f1_mean": 702.4734230034034,
+        "f2_mean": 1666.6229350843214,
+        "f3_mean": 2617.751307486793
+      },
+      "voice_quality": {
+        "jitter_local": 0.024004241272562454,
+        "shimmer_local": 0.04454207777777812,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 55.38792737817763,
+        "std_db": 61.21321970389514
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_009.wav",
+    "true_accent": "United States",
+    "true_region": "Midwestern American",
+    "speaker_gender": "F",
+    "predicted_accent": "United States",
+    "predicted_subregion": "General American (Imitated / L2 Substrate)",
+    "confidence_score": 78,
+    "praat_features": {
+      "duration_sec": 7.2460625,
+      "pitch": {
+        "mean_hz": 219.54602279411174,
+        "std_hz": 26.201080895464084,
+        "min_hz": 167.75572310725187,
+        "max_hz": 279.51976538032454
+      },
+      "formants": {
+        "f1_mean": 647.2518733970427,
+        "f2_mean": 1751.1218208084176,
+        "f3_mean": 2892.152341035118
+      },
+      "voice_quality": {
+        "jitter_local": 0.007902944966379652,
+        "shimmer_local": 0.028677037330546575,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 50.61669749048575,
+        "std_db": 79.03710198531891
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_010.wav",
+    "true_accent": "United States",
+    "true_region": "Standard American",
+    "speaker_gender": "M",
+    "predicted_accent": "United Kingdom",
+    "predicted_subregion": "Standard Southern British (RP)",
+    "confidence_score": 83,
+    "praat_features": {
+      "duration_sec": 6.7346875,
+      "pitch": {
+        "mean_hz": 123.0092106880372,
+        "std_hz": 12.692217747017366,
+        "min_hz": 75.67080477687072,
+        "max_hz": 148.9408508818708
+      },
+      "formants": {
+        "f1_mean": 630.2183371295589,
+        "f2_mean": 1718.5244197218628,
+        "f3_mean": 2720.7580656459277
+      },
+      "voice_quality": {
+        "jitter_local": 0.012333557724762145,
+        "shimmer_local": 0.07185994261059384,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 41.644615181136196,
+        "std_db": 91.0700395536852
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_011.wav",
+    "true_accent": "Ireland",
+    "true_region": "Hiberno-English (Dublin)",
+    "speaker_gender": "F",
+    "predicted_accent": "Ireland",
+    "predicted_subregion": "Dublin / General Irish (Hiberno-English)",
+    "confidence_score": 89,
+    "praat_features": {
+      "duration_sec": 5.694375,
+      "pitch": {
+        "mean_hz": 185.57601465996265,
+        "std_hz": 23.654984408191666,
+        "min_hz": 134.90213510303738,
+        "max_hz": 259.7176968200979
+      },
+      "formants": {
+        "f1_mean": 686.6029443621228,
+        "f2_mean": 1779.522158103435,
+        "f3_mean": 2844.9247551299886
+      },
+      "voice_quality": {
+        "jitter_local": 0.011001224458867993,
+        "shimmer_local": 0.06582299579768965,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 67.73237931492667,
+        "std_db": 18.740222665836335
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_012.wav",
+    "true_accent": "Ireland",
+    "true_region": "Irish English",
+    "speaker_gender": "F",
+    "predicted_accent": "United Kingdom",
+    "predicted_subregion": "Standard Southern British (RP)",
+    "confidence_score": 83,
+    "praat_features": {
+      "duration_sec": 6.376625,
+      "pitch": {
+        "mean_hz": 182.76547811470553,
+        "std_hz": 18.990870677165756,
+        "min_hz": 133.44899652469883,
+        "max_hz": 230.27665986968188
+      },
+      "formants": {
+        "f1_mean": 635.6924815212767,
+        "f2_mean": 1777.9390150252354,
+        "f3_mean": 2827.2322416436223
+      },
+      "voice_quality": {
+        "jitter_local": 0.008397862190493868,
+        "shimmer_local": 0.04838490937182203,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 70.75461893748988,
+        "std_db": 17.64976920248745
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_013.wav",
+    "true_accent": "Australia",
+    "true_region": "General Australian",
+    "speaker_gender": "F",
+    "predicted_accent": "Australia",
+    "predicted_subregion": "General Australian English",
+    "confidence_score": 83,
+    "praat_features": {
+      "duration_sec": 6.3773125,
+      "pitch": {
+        "mean_hz": 187.8719282776882,
+        "std_hz": 16.481363534139447,
+        "min_hz": 152.47060129966079,
+        "max_hz": 230.83995217134773
+      },
+      "formants": {
+        "f1_mean": 606.7339476443633,
+        "f2_mean": 1948.2278518979533,
+        "f3_mean": 3154.8566390538335
+      },
+      "voice_quality": {
+        "jitter_local": 0.008163788260016165,
+        "shimmer_local": 0.05101342314867521,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 68.99966156408918,
+        "std_db": 19.268182588253282
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_014.wav",
+    "true_accent": "Australia",
+    "true_region": "Broad Australian",
+    "speaker_gender": "F",
+    "predicted_accent": "Australia",
+    "predicted_subregion": "General Australian",
+    "confidence_score": 83,
+    "praat_features": {
+      "duration_sec": 5.6626875,
+      "pitch": {
+        "mean_hz": 190.0396371654833,
+        "std_hz": 16.843375702416463,
+        "min_hz": 150.17603522474923,
+        "max_hz": 232.64195181345946
+      },
+      "formants": {
+        "f1_mean": 522.9035251533496,
+        "f2_mean": 1886.9127285601028,
+        "f3_mean": 3110.5531653545804
+      },
+      "voice_quality": {
+        "jitter_local": 0.007801601267705569,
+        "shimmer_local": 0.05644380472535499,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 70.63347050563426,
+        "std_db": 16.789177793496684
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_015.wav",
+    "true_accent": "South Africa",
+    "true_region": "South African English",
+    "speaker_gender": "F",
+    "predicted_accent": "South Africa",
+    "predicted_subregion": "General South African English",
+    "confidence_score": 86,
+    "praat_features": {
+      "duration_sec": 6.3360625,
+      "pitch": {
+        "mean_hz": 184.73643728740433,
+        "std_hz": 19.802045771198507,
+        "min_hz": 128.07239294133973,
+        "max_hz": 242.62640486161834
+      },
+      "formants": {
+        "f1_mean": 683.6159292632452,
+        "f2_mean": 1845.2552497025006,
+        "f3_mean": 2997.1606651842703
+      },
+      "voice_quality": {
+        "jitter_local": 0.00907745794749857,
+        "shimmer_local": 0.05537027502996906,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 68.04160078833809,
+        "std_db": 19.411250495970474
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_016.wav",
+    "true_accent": "South Africa",
+    "true_region": "South African English",
+    "speaker_gender": "F",
+    "predicted_accent": "South Africa",
+    "predicted_subregion": "General South African English",
+    "confidence_score": 86,
+    "praat_features": {
+      "duration_sec": 6.261125,
+      "pitch": {
+        "mean_hz": 185.99655944754844,
+        "std_hz": 31.429807801674418,
+        "min_hz": 123.12075860978189,
+        "max_hz": 560.2155871282121
+      },
+      "formants": {
+        "f1_mean": 703.7336849635465,
+        "f2_mean": 1931.7462877059575,
+        "f3_mean": 3015.5600550851977
+      },
+      "voice_quality": {
+        "jitter_local": 0.009020221599906305,
+        "shimmer_local": 0.05814361944962972,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 70.93013846785267,
+        "std_db": 14.688179430878998
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_017.wav",
+    "true_accent": "India",
+    "true_region": "Indian English (Hindi Substrate)",
+    "speaker_gender": "M",
+    "predicted_accent": "India",
+    "predicted_subregion": "General Indian English (South Asian Substrate)",
+    "confidence_score": 89,
+    "praat_features": {
+      "duration_sec": 5.7505625,
+      "pitch": {
+        "mean_hz": 143.70870400140868,
+        "std_hz": 34.29315190240148,
+        "min_hz": 77.20065214405895,
+        "max_hz": 254.78800984899266
+      },
+      "formants": {
+        "f1_mean": 538.2918284073306,
+        "f2_mean": 1703.0465761630937,
+        "f3_mean": 2632.390253381828
+      },
+      "voice_quality": {
+        "jitter_local": 0.019843977879751142,
+        "shimmer_local": 0.08933761760245276,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 68.00048489035719,
+        "std_db": 14.760728891942946
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.6-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_018.wav",
+    "true_accent": "India",
+    "true_region": "Indian English",
+    "speaker_gender": "F",
+    "predicted_accent": "India",
+    "predicted_subregion": "General Indian English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 5.998375,
+      "pitch": {
+        "mean_hz": 195.08162995944443,
+        "std_hz": 42.994950583395,
+        "min_hz": 137.4570112396618,
+        "max_hz": 527.1256901802867
+      },
+      "formants": {
+        "f1_mean": 640.2408326937605,
+        "f2_mean": 1831.527711824042,
+        "f3_mean": 2958.0170634501933
+      },
+      "voice_quality": {
+        "jitter_local": 0.018027168262489655,
+        "shimmer_local": 0.08053271377487592,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 67.84953119684191,
+        "std_db": 12.228898243572214
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_019.wav",
+    "true_accent": "India",
+    "true_region": "Indian English",
+    "speaker_gender": "M",
+    "predicted_accent": "India",
+    "predicted_subregion": "Standard Indian English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 6.7394375,
+      "pitch": {
+        "mean_hz": 118.07280993374441,
+        "std_hz": 16.644346185871438,
+        "min_hz": 79.30180760810165,
+        "max_hz": 182.25329692878398
+      },
+      "formants": {
+        "f1_mean": 577.7992437790651,
+        "f2_mean": 1754.038731159325,
+        "f3_mean": 2677.6949638691335
+      },
+      "voice_quality": {
+        "jitter_local": 0.012904942823818412,
+        "shimmer_local": 0.08376831245040123,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 69.18943675892652,
+        "std_db": 18.142649249544675
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_020.wav",
+    "true_accent": "France",
+    "true_region": "French Substrate English",
+    "speaker_gender": "M",
+    "predicted_accent": "France",
+    "predicted_subregion": "French-accented English (L2)",
+    "confidence_score": 78,
+    "praat_features": {
+      "duration_sec": 5.9766875,
+      "pitch": {
+        "mean_hz": 130.0555597243852,
+        "std_hz": 15.859476851706692,
+        "min_hz": 81.67886425882607,
+        "max_hz": 163.60197326487614
+      },
+      "formants": {
+        "f1_mean": 640.9732097260878,
+        "f2_mean": 1962.4912062028948,
+        "f3_mean": 3086.5751087452227
+      },
+      "voice_quality": {
+        "jitter_local": 0.013778483571778839,
+        "shimmer_local": 0.08375445271918429,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 73.10153470983295,
+        "std_db": 15.253334280915663
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.7-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_021.wav",
+    "true_accent": "France",
+    "true_region": "French Substrate English",
+    "speaker_gender": "F",
+    "predicted_accent": "France",
+    "predicted_subregion": "French-accented English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 5.9454375,
+      "pitch": {
+        "mean_hz": 122.0008053964022,
+        "std_hz": 19.17192575851895,
+        "min_hz": 80.25446760230228,
+        "max_hz": 213.50548252315232
+      },
+      "formants": {
+        "f1_mean": 531.8066264636337,
+        "f2_mean": 1689.8701178465842,
+        "f3_mean": 2658.4412007440606
+      },
+      "voice_quality": {
+        "jitter_local": 0.012337762917162062,
+        "shimmer_local": 0.0705057392175947,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 70.1103413251305,
+        "std_db": 19.2016741195274
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_022.wav",
+    "true_accent": "Germany",
+    "true_region": "German Substrate English",
+    "speaker_gender": "F",
+    "predicted_accent": "Germany",
+    "predicted_subregion": "German-influenced English (L2)",
+    "confidence_score": 89,
+    "praat_features": {
+      "duration_sec": 6.697625,
+      "pitch": {
+        "mean_hz": 170.11706423083237,
+        "std_hz": 20.42860779291419,
+        "min_hz": 104.69649324276209,
+        "max_hz": 236.62261552056918
+      },
+      "formants": {
+        "f1_mean": 672.7696144479651,
+        "f2_mean": 1958.183701469884,
+        "f3_mean": 2962.393799393078
+      },
+      "voice_quality": {
+        "jitter_local": 0.015518403573233034,
+        "shimmer_local": 0.08675750979978969,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 65.86380392916263,
+        "std_db": 15.579148731537648
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_023.wav",
+    "true_accent": "Germany",
+    "true_region": "German Substrate English",
+    "speaker_gender": "M",
+    "predicted_accent": "Germany",
+    "predicted_subregion": "German-influenced English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 7.3586875,
+      "pitch": {
+        "mean_hz": 120.87764987760082,
+        "std_hz": 10.221932733342562,
+        "min_hz": 82.19488194948069,
+        "max_hz": 141.3761330767465
+      },
+      "formants": {
+        "f1_mean": 638.0911988529936,
+        "f2_mean": 1790.0330230833265,
+        "f3_mean": 2805.81645621834
+      },
+      "voice_quality": {
+        "jitter_local": 0.01238148254699372,
+        "shimmer_local": 0.07143621945629647,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 47.54901680058509,
+        "std_db": 79.44169316403585
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_024.wav",
+    "true_accent": "Spain",
+    "true_region": "Spanish Substrate English",
+    "speaker_gender": "F",
+    "predicted_accent": "Spain",
+    "predicted_subregion": "Spanish Substrate (Castilian)",
+    "confidence_score": 89,
+    "praat_features": {
+      "duration_sec": 4.9076875,
+      "pitch": {
+        "mean_hz": 170.48028651007917,
+        "std_hz": 22.90575354606012,
+        "min_hz": 137.37279148357135,
+        "max_hz": 248.28122882939417
+      },
+      "formants": {
+        "f1_mean": 560.6089534165861,
+        "f2_mean": 1972.209239077811,
+        "f3_mean": 3091.538560156585
+      },
+      "voice_quality": {
+        "jitter_local": 0.010803435272858191,
+        "shimmer_local": 0.07394968110625622,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 70.31198248637834,
+        "std_db": 14.006057840046562
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_025.wav",
+    "true_accent": "Spain",
+    "true_region": "Spanish Substrate English",
+    "speaker_gender": "M",
+    "predicted_accent": "India",
+    "predicted_subregion": "Indian English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 6.0814375,
+      "pitch": {
+        "mean_hz": 113.77767579521907,
+        "std_hz": 10.952018127313627,
+        "min_hz": 78.66864980438808,
+        "max_hz": 144.6414551612148
+      },
+      "formants": {
+        "f1_mean": 565.2567444299162,
+        "f2_mean": 1711.5391991480471,
+        "f3_mean": 2680.385848746946
+      },
+      "voice_quality": {
+        "jitter_local": 0.012377865146689579,
+        "shimmer_local": 0.0722391747234219,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 71.29154048509639,
+        "std_db": 15.580612897384437
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.6-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_026.wav",
+    "true_accent": "Japan",
+    "true_region": "Japanese Substrate English",
+    "speaker_gender": "F",
+    "predicted_accent": "Japan",
+    "predicted_subregion": "Japanese-accented English (L1 Japanese substrate)",
+    "confidence_score": 78,
+    "praat_features": {
+      "duration_sec": 7.8021875,
+      "pitch": {
+        "mean_hz": 240.82029737263375,
+        "std_hz": 41.48905019682886,
+        "min_hz": 139.6948054125206,
+        "max_hz": 328.09148238034754
+      },
+      "formants": {
+        "f1_mean": 612.6723352691079,
+        "f2_mean": 1940.4463359659826,
+        "f3_mean": 3221.7141004880036
+      },
+      "voice_quality": {
+        "jitter_local": 0.008964430015486217,
+        "shimmer_local": 0.05054114059606664,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 59.750893713103316,
+        "std_db": 19.452871791032702
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_027.wav",
+    "true_accent": "Japan",
+    "true_region": "Japanese Substrate English",
+    "speaker_gender": "M",
+    "predicted_accent": "Japan",
+    "predicted_subregion": "Japanese-accented English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 18.702,
+      "pitch": {
+        "mean_hz": 106.06590561579559,
+        "std_hz": 15.207934786023158,
+        "min_hz": 74.99499828076286,
+        "max_hz": 144.2767883747523
+      },
+      "formants": {
+        "f1_mean": 487.9872558741421,
+        "f2_mean": 1715.453535019937,
+        "f3_mean": 2955.840926958947
+      },
+      "voice_quality": {
+        "jitter_local": 0.011989754473809767,
+        "shimmer_local": 0.05433279303093911,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 5.199925281054599,
+        "std_db": 142.25097090972832
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_028.wav",
+    "true_accent": "Brazil",
+    "true_region": "Brazilian Portuguese Substrate",
+    "speaker_gender": "F",
+    "predicted_accent": "Brazil",
+    "predicted_subregion": "Brazilian Portuguese Substrate",
+    "confidence_score": 89,
+    "praat_features": {
+      "duration_sec": 7.071125,
+      "pitch": {
+        "mean_hz": 183.72484350852054,
+        "std_hz": 22.556516165467592,
+        "min_hz": 128.09588660593462,
+        "max_hz": 262.12425353765514
+      },
+      "formants": {
+        "f1_mean": 503.3664562445161,
+        "f2_mean": 1803.2447103242496,
+        "f3_mean": 2908.606486514357
+      },
+      "voice_quality": {
+        "jitter_local": 0.010177737286511739,
+        "shimmer_local": 0.05032073293653624,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 74.44399299321205,
+        "std_db": 14.296735066673413
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_029.wav",
+    "true_accent": "Brazil",
+    "true_region": "Brazilian Portuguese Substrate",
+    "speaker_gender": "M",
+    "predicted_accent": "Italy",
+    "predicted_subregion": "Italian Substrate English",
+    "confidence_score": 81,
+    "praat_features": {
+      "duration_sec": 7.7336875,
+      "pitch": {
+        "mean_hz": 134.0089308460194,
+        "std_hz": 14.583291369736031,
+        "min_hz": 75.10940455761255,
+        "max_hz": 165.0942744782891
+      },
+      "formants": {
+        "f1_mean": 523.0902686373955,
+        "f2_mean": 1706.5985639559763,
+        "f3_mean": 2703.579020859929
+      },
+      "voice_quality": {
+        "jitter_local": 0.014414887252177227,
+        "shimmer_local": 0.08318756705064365,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 49.01009185637115,
+        "std_db": 87.01427601000614
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  },
+  {
+    "file": "sample_030.wav",
+    "true_accent": "Italy",
+    "true_region": "Italian Substrate English",
+    "speaker_gender": "F",
+    "predicted_accent": "Italy",
+    "predicted_subregion": "Italian-influenced English (Italian Substrate)",
+    "confidence_score": 89,
+    "praat_features": {
+      "duration_sec": 5.62375,
+      "pitch": {
+        "mean_hz": 157.02836560633162,
+        "std_hz": 24.255491329383364,
+        "min_hz": 95.89206843075655,
+        "max_hz": 206.17141864615655
+      },
+      "formants": {
+        "f1_mean": 602.7886476349114,
+        "f2_mean": 1934.1576889232394,
+        "f3_mean": 2867.59503357399
+      },
+      "voice_quality": {
+        "jitter_local": 0.010798398200679486,
+        "shimmer_local": 0.07468867598194781,
+        "reliable": true
+      },
+      "intensity": {
+        "mean_db": 71.89522491132611,
+        "std_db": 16.903884830623994
+      }
+    },
+    "engine_telemetry": {
+      "gemini": {
+        "status": "success",
+        "model": "gemini-3.5-flash"
+      },
+      "kimi": {
+        "status": "no_api_key"
+      },
+      "acoustic": {
+        "status": "executed"
+      },
+      "praat": {
+        "status": "executed"
+      },
+      "primaryEngineUsed": "Gemini Multimodal Audio Neural Vision"
+    }
+  }
+]
