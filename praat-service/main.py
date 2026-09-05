@@ -7,10 +7,21 @@ from analyzer import analyze_audio
 
 app = FastAPI(title="Praat Phonetics Microservice")
 
+# Configurable CORS: default to local frontend ports and production deployment
+default_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3005",
+    "https://accent-ai-detector.vercel.app",
+]
+env_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+allowed_origins = env_origins if env_origins else default_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 

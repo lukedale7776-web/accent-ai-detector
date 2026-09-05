@@ -115,18 +115,17 @@ export async function POST(request: NextRequest) {
       kimi: { status: 'not_configured', error: undefined as string | undefined },
       acoustic: { status: 'executed' },
       praat: { status: praatData ? 'executed' : 'offline' },
-      primaryEngineUsed: 'Forensic Acoustic Engine',
+      primaryEngineUsed: 'Acoustic Signal DSP Engine',
     };
 
     const runGemini = async (): Promise<Partial<AccentAnalysisResponse> | null> => {
       if (!apiKey || apiKey.trim().length < 8) {
-        console.warn('[Gemini Engine] GEMINI_API_KEY not configured. Forensic Acoustic Engine will run.');
+        console.warn('[Gemini Engine] GEMINI_API_KEY not configured. Acoustic Signal DSP Engine will run.');
         engineTelemetry.gemini.status = 'no_api_key';
         return null;
       }
 
-      const candidateModels = ['gemini-3.6-flash', 'gemini-flash-latest', 'gemini-2.5-flash'];
-      const prompt = `You are a world-class forensic acoustic phonetician and speech dialectologist.
+      const prompt = `You are a world-class speech phonetician and acoustic dialectologist.
 You base your dialectological decisions on empirical sociolinguistic and phonetic research frameworks:
 1. J.C. Wells (1982) "Accents of English" (Vols 1–3, Cambridge):
    - TRAP-BATH split: Broad [ɑː] in RP/Standard Southern British, Australia, New Zealand, South Africa vs short [æ] in General American, Canada, and Northern England.
@@ -142,7 +141,7 @@ You base your dialectological decisions on empirical sociolinguistic and phoneti
    - California Vowel Shift (CVS): GOOSE/GOAT fronting, TRAP lowering.
    - Postvocalic rhoticity: Retention of postvocalic /r/ ([ɹ]) with sharp F3 suppression.
 3. Peterson & Barney (1952) / Hillenbrand (1995) Acoustic Formants & Measurements:
-   - Formant 3 (F3) Suppression: Rhotic accents (US, Canada, Ireland, Scotland) exhibit strong F3 lowering (< 2000 Hz) in syllable codas. Non-rhotic accents (RP/Estuary, Australia, New Zealand, South Africa, Caribbean, West Africa) have unsuppressed F3 (> 2500 Hz).
+   - Formant 3 (F3) Rhoticity Cue: Rhotic accents (US, Canada, Ireland, Scotland) exhibit contextual F3 lowering (typically dipping towards ~1800-2200 Hz depending on vocal tract length and gender) in syllable codas. Non-rhotic accents (RP/Estuary, Australia, New Zealand, South Africa, Caribbean, West Africa) have relatively unsuppressed F3 (> 2400-2600 Hz). Note: F3 thresholds vary with speaker anatomy (female/child vocal tracts naturally have higher formant baselines), so evaluate F3 as a relative contextual cue rather than an absolute binary rule.
    - Formant dispersion: F1 correlates inversely with vowel height; F2 correlates with frontness/backness.
 4. Lisker & Abramson (1964) Voice Onset Time (VOT) & Consonantal Realizations:
    - Aspirated fortis plosives: Long lag (VOT > 60-80 ms) in GA, RP, Australian English.
@@ -166,9 +165,9 @@ PRAAT PARSELMOUTH LABORATORY MEASUREMENTS (Burg Formant Algorithm):
 - Pitch F0 (Mean): ${praatData.pitch.mean_hz?.toFixed(1)} Hz (Min: ${praatData.pitch.min_hz?.toFixed(1)} Hz, Max: ${praatData.pitch.max_hz?.toFixed(1)} Hz)
 - Formant F1 (Vowel Height): ${praatData.formants.f1_mean?.toFixed(0)} Hz
 - Formant F2 (Vowel Frontness/Backness): ${praatData.formants.f2_mean?.toFixed(0)} Hz
-- Formant F3 (Rhoticity Suppression Indicator): ${praatData.formants.f3_mean?.toFixed(0)} Hz (${praatData.formants.f3_mean < 2100 ? 'Low F3: rhotic coda indicator' : 'High F3 (>2500Hz): non-rhotic indicator'})
-- Voice Quality Jitter: ${(praatData.voice_quality.jitter_local * 100)?.toFixed(2)}%
-- Voice Quality Shimmer: ${(praatData.voice_quality.shimmer_local * 100)?.toFixed(2)}%
+- Formant F3 (Rhoticity Contextual Cue): ${praatData.formants.f3_mean?.toFixed(0)} Hz (Contextual cue: lower relative F3 suggests rhotic coda coloring, elevated F3 suggests non-rhotic vowel quality; evaluate relative to speaker vocal tract baseline)
+- Voice Quality Jitter: ${praatData.voice_quality.jitter_local !== null ? (praatData.voice_quality.jitter_local * 100).toFixed(2) + '%' : 'N/A (insufficient duration or unvoiced)'}
+- Voice Quality Shimmer: ${praatData.voice_quality.shimmer_local !== null ? (praatData.voice_quality.shimmer_local * 100).toFixed(2) + '%' : 'N/A (insufficient duration or unvoiced)'}
 - Mean Intensity: ${praatData.intensity.mean_db?.toFixed(1)} dB
 ` : ''}
 
@@ -202,8 +201,8 @@ CRITICAL ACCURACY INSTRUCTIONS:
     "stressPatterns": "<Primary vs secondary lexical stress behavior>"
   }
 }`;
-      const model = 'gemini-3.6-flash';
-      for (let attempt = 0; attempt < 2; attempt++) {
+      const candidateModels = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+      for (const model of candidateModels) {
         try {
           const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
           const res = await fetch(geminiEndpoint, {
@@ -237,19 +236,17 @@ CRITICAL ACCURACY INSTRUCTIONS:
             }
           } else {
             const errBody = await res.text();
-            console.error(`[Gemini Engine Error] Model ${model} attempt ${attempt} HTTP ${res.status}:`, errBody);
-            engineTelemetry.gemini.status = 'failed';
-            engineTelemetry.gemini.error = `HTTP ${res.status}: ${errBody.slice(0, 150)}`;
-            if (attempt === 0 && (res.status === 503 || res.status === 500)) {
-              await new Promise(r => setTimeout(r, 800));
+            console.warn(`[Gemini Engine] Model ${model} HTTP ${res.status}: ${errBody.slice(0, 100)}`);
+            if (res.status === 503 || res.status === 429 || res.status === 500) {
+              // Fail over to next candidate model
+              await new Promise(r => setTimeout(r, 400));
               continue;
             }
             break;
           }
         } catch (err: any) {
-          console.error(`[Gemini Engine Exception] Model ${model} attempt ${attempt}:`, err?.message || err);
-          engineTelemetry.gemini.status = 'failed';
-          engineTelemetry.gemini.error = err?.message || String(err);
+          console.warn(`[Gemini Engine Exception] Model ${model}:`, err?.message || err);
+          continue;
         }
       }
       return null;
@@ -314,7 +311,7 @@ CRITICAL ACCURACY INSTRUCTIONS:
       if (!existing || kRes.confidenceScore > existing.confidence) {
         candidates[kRes.primaryCountry] = {
           confidence: kRes.confidenceScore,
-          source: 'Forensic Dialectology Model',
+          source: 'Acoustic Dialectology Model',
           details: kRes,
         };
       }
@@ -384,11 +381,24 @@ CRITICAL ACCURACY INSTRUCTIONS:
     addMarkers(acousticBaseline.phoneticMarkers);
 
     if (praatData) {
+      const jitterStr =
+        praatData.voice_quality.jitter_local !== null
+          ? `, Jitter ${(praatData.voice_quality.jitter_local * 100).toFixed(2)}%`
+          : '';
+      const shimmerStr =
+        praatData.voice_quality.shimmer_local !== null
+          ? `, Shimmer ${(praatData.voice_quality.shimmer_local * 100).toFixed(2)}%`
+          : '';
+      const rhoticityCue =
+        praatData.formants.f3_mean < 2150
+          ? 'Rhotic F3 lowering cue'
+          : 'Elevated F3 / non-rhotic tendency';
+
       mergedPhonetics.push({
         feature: 'Formant Dispersion (Praat Acoustic Lab)',
         ipa: `F1:${Math.round(praatData.formants.f1_mean)} F2:${Math.round(praatData.formants.f2_mean)} F3:${Math.round(praatData.formants.f3_mean)} Hz`,
         exampleWord: 'Vocal tract resonance',
-        explanation: `Parselmouth acoustic tracking: Mean pitch F0 ${Math.round(praatData.pitch.mean_hz)} Hz, F3 at ${Math.round(praatData.formants.f3_mean)} Hz (${praatData.formants.f3_mean < 2100 ? 'Rhotic F3 lowering' : 'Non-rhotic elevated F3'}), Jitter ${(praatData.voice_quality.jitter_local * 100).toFixed(2)}%, Shimmer ${(praatData.voice_quality.shimmer_local * 100).toFixed(2)}%.`,
+        explanation: `Parselmouth acoustic tracking: Mean pitch F0 ${Math.round(praatData.pitch.mean_hz)} Hz, F3 at ${Math.round(praatData.formants.f3_mean)} Hz (${rhoticityCue})${jitterStr}${shimmerStr}.`,
       });
     }
 
@@ -506,8 +516,8 @@ CRITICAL ACCURACY INSTRUCTIONS:
       transcription: transcriptToAnalyze || acousticBaseline.transcription,
       verdictSummary:
         bestSource === 'Gemini Multimodal Audio Neural Vision'
-          ? `Gemini Multimodal Audio Neural Engine analyzed the raw acoustic waveform directly, identifying ${topCountry} (${geminiResult?.regionOrDialect || acousticBaseline.regionOrDialect}) with ${finalConfidence}% confidence.`
-          : `Forensic Acoustic Signal Engine identified a ${finalConfidence}% spectral centroid match with ${topCountry} based on physical pitch (F0), zero-crossing rate, and rhythm dynamics.`,
+          ? `Multimodal neural acoustic analysis evaluated the raw speech waveform directly, identifying ${topCountry} (${geminiResult?.regionOrDialect || acousticBaseline.regionOrDialect}) with ${finalConfidence}% match confidence.`
+          : `Acoustic Signal DSP Engine identified a ${finalConfidence}% spectral centroid match with ${topCountry} based on physical pitch (F0), zero-crossing rate, and rhythm dynamics.`,
       runnerUpCountries: runnerUps,
       phoneticMarkers: mergedPhonetics.slice(0, 5),
       prosodyAndRhythm: geminiResult?.prosodyAndRhythm || acousticBaseline.prosodyAndRhythm,

@@ -52,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">
-              Forensic Acoustic Speech Accent Analyzer
+              Acoustic Speech Dialectology &amp; Accent Studio
             </p>
           </div>
         </div>

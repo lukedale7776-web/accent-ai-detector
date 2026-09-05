@@ -43,8 +43,9 @@ export interface PraatFeatures {
     f3_mean: number;
   };
   voice_quality: {
-    jitter_local: number;
-    shimmer_local: number;
+    jitter_local: number | null;
+    shimmer_local: number | null;
+    reliable?: boolean;
   };
   intensity: {
     mean_db: number;

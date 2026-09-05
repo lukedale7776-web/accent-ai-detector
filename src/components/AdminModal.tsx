@@ -292,7 +292,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
               <div className="space-y-2.5">
                 <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
                   <span>Recent Audio Analyses Feed</span>
-                  <span className="text-[10px] text-slate-500 lowercase">Forensic acoustic telemetry</span>
+                  <span className="text-[10px] text-slate-500 lowercase">Acoustic telemetry feed</span>
                 </h4>
 
                 {(!analytics?.recentAnalyses || analytics.recentAnalyses.length === 0) ? (

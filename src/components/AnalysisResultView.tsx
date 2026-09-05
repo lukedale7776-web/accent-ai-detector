@@ -94,6 +94,12 @@ Summary: ${result.verdictSummary}`;
                       {result.engineTelemetry.primaryEngineUsed}
                     </span>
                   )}
+                  {result.praat && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                      <Sliders className="w-3 h-3 mr-1 text-cyan-400" />
+                      Praat Acoustic Lab
+                    </span>
+                  )}
                   {onReset && (
                     <button
                       onClick={onReset}
@@ -157,11 +163,11 @@ Summary: ${result.verdictSummary}`;
           </div>
         )}
 
-        {/* Verdict Summary */}
+        {/* Analysis Summary */}
         <div className="mt-6 pt-6 border-t border-white/10">
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5 mb-2">
             <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Phonetic Verdict Summary</span>
+            <span>Phonetic Analysis Summary</span>
           </h4>
           <p className="text-sm text-slate-200 leading-relaxed">
             {result.verdictSummary}
@@ -299,7 +305,22 @@ Summary: ${result.verdictSummary}`;
         </div>
       </div>
 
-      {/* Praat / Parselmouth Forensic Acoustic Telemetry */}
+      {/* Offline Acoustic Standard Mode Transparency Notice */}
+      {result.engineTelemetry?.praat?.status === 'offline' && (
+        <div className="p-4 rounded-2xl glass-panel border border-slate-700/50 bg-slate-900/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-slate-400">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0 animate-pulse" />
+            <span>
+              <strong className="text-slate-300">Standard DSP Mode:</strong> Praat acoustic microservice was offline or unreachable. Speech analysis completed using built-in acoustic DSP &amp; neural audio modeling.
+            </span>
+          </div>
+          <span className="text-[10px] font-mono uppercase text-slate-400 border border-slate-700 px-2 py-0.5 rounded bg-white/5 shrink-0">
+            Native Audio DSP
+          </span>
+        </div>
+      )}
+
+      {/* Praat / Parselmouth Acoustic Telemetry */}
       {result.praat && (
         <div className="p-6 rounded-2xl glass-panel border border-cyan-500/20 bg-gradient-to-r from-cyan-950/20 via-slate-900/40 to-indigo-950/20">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -309,7 +330,7 @@ Summary: ${result.verdictSummary}`;
               </div>
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center space-x-2">
-                  <span>Praat Phonetic Laboratory Metrics</span>
+                  <span>Praat Acoustic Laboratory Telemetry</span>
                 </h3>
                 <p className="text-[11px] text-slate-400">
                   Extracted via Paul Boersma &amp; David Weenink&apos;s Praat / Parselmouth acoustic engine
@@ -318,7 +339,7 @@ Summary: ${result.verdictSummary}`;
             </div>
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
               <Sliders className="w-3 h-3 mr-1 text-cyan-400" />
-              Burg Formants &amp; Jitter
+              Burg Formants &amp; Voice Quality
             </span>
           </div>
 
@@ -340,12 +361,12 @@ Summary: ${result.verdictSummary}`;
             </div>
 
             <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">F3 Rhoticity</span>
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">F3 Rhoticity Cue</span>
               <p className="text-lg font-black text-cyan-300 mt-0.5">
                 {Math.round(result.praat.formants.f3_mean)} <span className="text-xs font-normal text-slate-400">Hz</span>
               </p>
-              <span className="text-[10px] text-slate-400">
-                {result.praat.formants.f3_mean < 2100 ? 'Rhotic (lowered)' : 'Non-rhotic'}
+              <span className="text-[10px] text-slate-400" title="Relative acoustic cue; anatomy and vocal tract length influence individual baselines">
+                {result.praat.formants.f3_mean < 2150 ? 'Lowered F3 (rhotic)' : 'Elevated (non-rhotic)'}
               </span>
             </div>
 
@@ -362,7 +383,14 @@ Summary: ${result.verdictSummary}`;
             <div className="p-3 rounded-xl bg-white/5 border border-white/5">
               <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Jitter (Local)</span>
               <p className="text-lg font-black text-purple-300 mt-0.5">
-                {(result.praat.voice_quality.jitter_local * 100).toFixed(2)}<span className="text-xs font-normal text-slate-400">%</span>
+                {result.praat.voice_quality.jitter_local !== null ? (
+                  <>
+                    {(result.praat.voice_quality.jitter_local * 100).toFixed(2)}
+                    <span className="text-xs font-normal text-slate-400">%</span>
+                  </>
+                ) : (
+                  <span className="text-xs font-normal text-slate-500 italic">Short / unvoiced</span>
+                )}
               </p>
               <span className="text-[10px] text-slate-400">Pitch perturbation</span>
             </div>
@@ -370,7 +398,14 @@ Summary: ${result.verdictSummary}`;
             <div className="p-3 rounded-xl bg-white/5 border border-white/5">
               <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Shimmer (Local)</span>
               <p className="text-lg font-black text-amber-300 mt-0.5">
-                {(result.praat.voice_quality.shimmer_local * 100).toFixed(2)}<span className="text-xs font-normal text-slate-400">%</span>
+                {result.praat.voice_quality.shimmer_local !== null ? (
+                  <>
+                    {(result.praat.voice_quality.shimmer_local * 100).toFixed(2)}
+                    <span className="text-xs font-normal text-slate-400">%</span>
+                  </>
+                ) : (
+                  <span className="text-xs font-normal text-slate-500 italic">Short / unvoiced</span>
+                )}
               </p>
               <span className="text-[10px] text-slate-400">Amplitude stability</span>
             </div>

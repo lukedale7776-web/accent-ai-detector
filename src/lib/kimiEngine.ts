@@ -47,7 +47,7 @@ export async function analyzeWithKimiK3(
   const pitchStr = Math.round(acoustics.estimatedPitchHz || 140);
   const rhythmClass = rhythmVal > 0.31 ? 'Stress-Timed' : rhythmVal < 0.22 ? 'Syllable-Timed' : 'Mora-Timed / Mixed';
 
-  const prompt = `You are a forensic acoustic phonetician and global dialectologist.
+  const prompt = `You are an expert speech phonetician and global acoustic dialectologist.
 You base your dialectological decisions on empirical sociolinguistic and phonetic research frameworks:
 1. J.C. Wells (1982) "Accents of English" (Lexical Sets):
    - TRAP-BATH split: Broad [ɑː] in RP, Australia, New Zealand, South Africa vs short [æ] in General American, Canada, and Northern England.
@@ -62,7 +62,7 @@ You base your dialectological decisions on empirical sociolinguistic and phoneti
    - Southern Vowel Shift (PRICE monophthongization [aː], pin-pen merger).
    - Rhoticity: Postvocalic /r/ ([ɹ]) retention with sharp F3 suppression.
 3. Peterson & Barney / Hillenbrand Formant Correlates:
-   - F3 Suppression (< 2000 Hz) in rhotic accents (US, Canada, Ireland, Scotland) vs high F3 (> 2500 Hz) in non-rhotic accents (RP/Estuary, Australia, New Zealand, South Africa, Caribbean).
+   - Formant 3 (F3) Rhoticity Cue: Contextual F3 lowering in rhotic accents (US, Canada, Ireland, Scotland, dipping toward ~1800-2200 Hz relative to speaker vocal tract baseline) vs elevated F3 (> 2400-2600 Hz) in non-rhotic accents (RP/Estuary, Australia, New Zealand, South Africa, Caribbean). Note: Evaluate F3 as a relative contextual indicator rather than a rigid universal threshold.
 4. Lisker & Abramson VOT & Consonant Landmarks:
    - Aspirated fortis plosives (VOT > 65ms in Anglophone GA/RP/Aus) vs unaspirated plosives (VOT < 25ms in South Asian, Romance, African varieties).
    - Retroflex plosives [ʈ], [ɖ] and retroflex flap [ɽ] characteristic of South Asian / Indian English substrate.
@@ -97,7 +97,7 @@ Return strictly a single JSON object with this structure (no markdown fences, no
   "confidenceScore": 86,
   "imitatedAccentDetected": false,
   "imitatedAccentDetails": "",
-  "verdictSummary": "<Precise 2-sentence forensic acoustic summary>",
+  "verdictSummary": "<Precise 2-sentence acoustic dialectology summary>",
   "phoneticMarkers": [
     {
       "feature": "<Specific phonological feature>",
@@ -140,7 +140,7 @@ Return strictly a single JSON object with this structure (no markdown fences, no
             {
               role: 'system',
               content:
-                'You are an expert forensic dialectologist. Always respond strictly in valid raw JSON with zero markdown or conversational intro.',
+                'You are an expert speech phonetician and dialectologist. Always respond strictly in valid raw JSON with zero markdown or conversational intro.',
             },
             {
               role: 'user',

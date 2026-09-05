@@ -237,7 +237,7 @@ export const AudioUploader: React.FC<AudioUploaderProps> = ({ onAudioReady, onRe
               <label className="text-xs font-medium text-slate-300">
                 Spoken Transcript / Words (Optional)
               </label>
-              <span className="text-[10px] text-slate-400">Enhances forensic accuracy</span>
+              <span className="text-[10px] text-slate-400">Enhances phonetic alignment</span>
             </div>
             <input
               type="text"

@@ -27,15 +27,26 @@ def analyze_audio(file_path: str) -> dict:
         t += time_step
 
     # Jitter and shimmer (voice quality)
-    try:
-        point_process = call(snd, "To PointProcess (periodic, cc)", 75, 500)
-        raw_jitter = call(point_process, "Get jitter (local)", 0, 0, 0.0001, 0.02, 1.3)
-        raw_shimmer = call([snd, point_process], "Get shimmer (local)", 0, 0, 0.0001, 0.02, 1.3, 1.6)
-        jitter = float(raw_jitter) if not np.isnan(raw_jitter) else None
-        shimmer = float(raw_shimmer) if not np.isnan(raw_shimmer) else None
-    except Exception:
-        jitter = None
-        shimmer = None
+    # Acoustic phonetics standard: minimum ~1.5s duration and sufficient voiced frames (>20)
+    # to avoid artifactual noise on short clips (Baken & Orlikoff, 2000; Boersma, 2001)
+    jitter = None
+    shimmer = None
+    voice_quality_reliable = bool(duration >= 1.5 and len(pitch_values) >= 20)
+
+    if voice_quality_reliable:
+        try:
+            point_process = call(snd, "To PointProcess (periodic, cc)", 75, 500)
+            raw_jitter = call(point_process, "Get jitter (local)", 0, 0, 0.0001, 0.02, 1.3)
+            raw_shimmer = call([snd, point_process], "Get shimmer (local)", 0, 0, 0.0001, 0.02, 1.3, 1.6)
+            # Filter NaN and physiological outlier limits (clipping / background noise)
+            if not np.isnan(raw_jitter) and 0.0 <= raw_jitter <= 0.20:
+                jitter = float(raw_jitter)
+            if not np.isnan(raw_shimmer) and 0.0 <= raw_shimmer <= 0.40:
+                shimmer = float(raw_shimmer)
+        except Exception:
+            jitter = None
+            shimmer = None
+            voice_quality_reliable = False
 
     # Intensity
     intensity = snd.to_intensity()
@@ -58,6 +69,7 @@ def analyze_audio(file_path: str) -> dict:
         "voice_quality": {
             "jitter_local": jitter,
             "shimmer_local": shimmer,
+            "reliable": voice_quality_reliable,
         },
         "intensity": {
             "mean_db": float(np.mean(intensity_values)) if len(intensity_values) else None,
