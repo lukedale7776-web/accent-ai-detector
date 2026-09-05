@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAdminAccess, consumeQuota } from '@/lib/quota';
-import { AccentAnalysisResponse, PhoneticMarker, RunnerUpMatch } from '@/lib/types';
+import { AccentAnalysisResponse, PhoneticMarker, RunnerUpMatch, PraatFeatures } from '@/lib/types';
 import { classifySpeechDialect } from '@/lib/dialectEngine';
 import { analyzeWithKimiK3, KimiDialectAnalysis } from '@/lib/kimiEngine';
 import { getCountryTheme } from '@/lib/countryData';
 import { recordAnalysis } from '@/lib/analytics';
+import { analyzeWithPraat } from '@/lib/praatClient';
 
 export const maxDuration = 60; // 60s timeout on Vercel
 
@@ -104,12 +105,16 @@ export async function POST(request: NextRequest) {
 
     const transcriptToAnalyze = safeTranscript || acousticBaseline.transcription || '';
 
+    // 1b. Query Praat / Parselmouth Python microservice for Laboratory Acoustics
+    const praatData = await analyzeWithPraat(buffer, file.name);
+
     // 2. Parallel AI Execution: Gemini Multimodal Audio & Kimi/NVIDIA
     const apiKey = process.env.GEMINI_API_KEY;
     const engineTelemetry = {
       gemini: { status: 'not_configured', model: undefined as string | undefined, error: undefined as string | undefined },
       kimi: { status: 'not_configured', error: undefined as string | undefined },
       acoustic: { status: 'executed' },
+      praat: { status: praatData ? 'executed' : 'offline' },
       primaryEngineUsed: 'Forensic Acoustic Engine',
     };
 
@@ -151,11 +156,21 @@ You base your dialectological decisions on empirical sociolinguistic and phoneti
    - Mora-timed: Japanese English with vowel epenthesis [ɯ, o].
 
 PHYSICAL ACOUSTIC MEASUREMENTS EXTRACTED FROM THIS AUDIO SIGNAL:
-- Fundamental Frequency F0 (Estimated Pitch): ${Math.round(acousticBaseline.acoustics?.estimatedPitchHz || 140)} Hz
+- Fundamental Frequency F0 (Estimated Pitch): ${Math.round(praatData?.pitch.mean_hz || acousticBaseline.acoustics?.estimatedPitchHz || 140)} Hz
 - Zero Crossing Rate (Aspiration & High-Frequency Noise): ${(acousticBaseline.acoustics?.zeroCrossingRate || 0.12).toFixed(4)}
 - Syllabic Rhythm Index (nPVI Cadence): ${(acousticBaseline.acoustics?.speechRhythmRatio || 0.22).toFixed(4)} (${(acousticBaseline.acoustics?.speechRhythmRatio || 0.22) > 0.31 ? 'Stress-Timed' : (acousticBaseline.acoustics?.speechRhythmRatio || 0.22) < 0.22 ? 'Syllable-Timed' : 'Mixed Cadence'})
 - High Frequency Spectral Energy Ratio: ${(acousticBaseline.acoustics?.highFreqRatio || 0.35).toFixed(4)}
-- Audio Duration: ${(acousticBaseline.acoustics?.durationSec || 3.5).toFixed(2)} seconds
+- Audio Duration: ${(praatData?.duration_sec || acousticBaseline.acoustics?.durationSec || 3.5).toFixed(2)} seconds
+${praatData ? `
+PRAAT PARSELMOUTH LABORATORY MEASUREMENTS (Burg Formant Algorithm):
+- Pitch F0 (Mean): ${praatData.pitch.mean_hz?.toFixed(1)} Hz (Min: ${praatData.pitch.min_hz?.toFixed(1)} Hz, Max: ${praatData.pitch.max_hz?.toFixed(1)} Hz)
+- Formant F1 (Vowel Height): ${praatData.formants.f1_mean?.toFixed(0)} Hz
+- Formant F2 (Vowel Frontness/Backness): ${praatData.formants.f2_mean?.toFixed(0)} Hz
+- Formant F3 (Rhoticity Suppression Indicator): ${praatData.formants.f3_mean?.toFixed(0)} Hz (${praatData.formants.f3_mean < 2100 ? 'Low F3: rhotic coda indicator' : 'High F3 (>2500Hz): non-rhotic indicator'})
+- Voice Quality Jitter: ${(praatData.voice_quality.jitter_local * 100)?.toFixed(2)}%
+- Voice Quality Shimmer: ${(praatData.voice_quality.shimmer_local * 100)?.toFixed(2)}%
+- Mean Intensity: ${praatData.intensity.mean_db?.toFixed(1)} dB
+` : ''}
 
 CRITICAL ACCURACY INSTRUCTIONS:
 - Listen to the raw audio waveform directly. Cross-reference the phonetics and acoustic measurements above.
@@ -368,6 +383,15 @@ CRITICAL ACCURACY INSTRUCTIONS:
     }
     addMarkers(acousticBaseline.phoneticMarkers);
 
+    if (praatData) {
+      mergedPhonetics.push({
+        feature: 'Formant Dispersion (Praat Acoustic Lab)',
+        ipa: `F1:${Math.round(praatData.formants.f1_mean)} F2:${Math.round(praatData.formants.f2_mean)} F3:${Math.round(praatData.formants.f3_mean)} Hz`,
+        exampleWord: 'Vocal tract resonance',
+        explanation: `Parselmouth acoustic tracking: Mean pitch F0 ${Math.round(praatData.pitch.mean_hz)} Hz, F3 at ${Math.round(praatData.formants.f3_mean)} Hz (${praatData.formants.f3_mean < 2100 ? 'Rhotic F3 lowering' : 'Non-rhotic elevated F3'}), Jitter ${(praatData.voice_quality.jitter_local * 100).toFixed(2)}%, Shimmer ${(praatData.voice_quality.shimmer_local * 100).toFixed(2)}%.`,
+      });
+    }
+
     // Check for imitation detected by any engine
     const isImitated = Boolean(
       geminiResult?.imitatedAccentDetected ||
@@ -488,6 +512,7 @@ CRITICAL ACCURACY INSTRUCTIONS:
       phoneticMarkers: mergedPhonetics.slice(0, 5),
       prosodyAndRhythm: geminiResult?.prosodyAndRhythm || acousticBaseline.prosodyAndRhythm,
       acoustics: acousticBaseline.acoustics,
+      praat: praatData || undefined,
       engineTelemetry,
       quotaRemaining: remaining,
       isAdmin,

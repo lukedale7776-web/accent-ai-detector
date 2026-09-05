@@ -29,6 +29,29 @@ export interface AcousticFeatures {
   speechRhythmRatio: number;
 }
 
+export interface PraatFeatures {
+  duration_sec: number;
+  pitch: {
+    mean_hz: number;
+    std_hz: number;
+    min_hz: number;
+    max_hz: number;
+  };
+  formants: {
+    f1_mean: number;
+    f2_mean: number;
+    f3_mean: number;
+  };
+  voice_quality: {
+    jitter_local: number;
+    shimmer_local: number;
+  };
+  intensity: {
+    mean_db: number;
+    std_db: number;
+  };
+}
+
 export interface AccentAnalysisResponse {
   primaryCountry: string;
   countryFlag: string;
@@ -42,10 +65,12 @@ export interface AccentAnalysisResponse {
   phoneticMarkers: PhoneticMarker[];
   prosodyAndRhythm: ProsodicMetrics;
   acoustics?: AcousticFeatures;
+  praat?: PraatFeatures;
   engineTelemetry?: {
     gemini: { status: string; error?: string };
     kimi: { status: string; error?: string };
     acoustic: { status: string };
+    praat?: { status: string; error?: string };
     primaryEngineUsed: string;
   };
   quotaRemaining: number;

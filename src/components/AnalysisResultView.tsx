@@ -15,6 +15,8 @@ import {
   Share2,
   ExternalLink,
   RotateCcw,
+  Gauge,
+  Sliders,
 } from 'lucide-react';
 import { AccentAnalysisResponse } from '@/lib/types';
 import { CountryMotionGraphic } from './CountryMotionGraphic';
@@ -296,6 +298,85 @@ Summary: ${result.verdictSummary}`;
           </div>
         </div>
       </div>
+
+      {/* Praat / Parselmouth Forensic Acoustic Telemetry */}
+      {result.praat && (
+        <div className="p-6 rounded-2xl glass-panel border border-cyan-500/20 bg-gradient-to-r from-cyan-950/20 via-slate-900/40 to-indigo-950/20">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <Gauge className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center space-x-2">
+                  <span>Praat Phonetic Laboratory Metrics</span>
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  Extracted via Paul Boersma &amp; David Weenink&apos;s Praat / Parselmouth acoustic engine
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+              <Sliders className="w-3 h-3 mr-1 text-cyan-400" />
+              Burg Formants &amp; Jitter
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">F1 Vowel Height</span>
+              <p className="text-lg font-black text-white mt-0.5">
+                {Math.round(result.praat.formants.f1_mean)} <span className="text-xs font-normal text-slate-400">Hz</span>
+              </p>
+              <span className="text-[10px] text-slate-400">Tongue aperture</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">F2 Front / Back</span>
+              <p className="text-lg font-black text-white mt-0.5">
+                {Math.round(result.praat.formants.f2_mean)} <span className="text-xs font-normal text-slate-400">Hz</span>
+              </p>
+              <span className="text-[10px] text-slate-400">Vowel frontness</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">F3 Rhoticity</span>
+              <p className="text-lg font-black text-cyan-300 mt-0.5">
+                {Math.round(result.praat.formants.f3_mean)} <span className="text-xs font-normal text-slate-400">Hz</span>
+              </p>
+              <span className="text-[10px] text-slate-400">
+                {result.praat.formants.f3_mean < 2100 ? 'Rhotic (lowered)' : 'Non-rhotic'}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Mean Pitch (F0)</span>
+              <p className="text-lg font-black text-indigo-300 mt-0.5">
+                {Math.round(result.praat.pitch.mean_hz)} <span className="text-xs font-normal text-slate-400">Hz</span>
+              </p>
+              <span className="text-[10px] text-slate-400">
+                &plusmn;{Math.round(result.praat.pitch.std_hz || 0)} Hz
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Jitter (Local)</span>
+              <p className="text-lg font-black text-purple-300 mt-0.5">
+                {(result.praat.voice_quality.jitter_local * 100).toFixed(2)}<span className="text-xs font-normal text-slate-400">%</span>
+              </p>
+              <span className="text-[10px] text-slate-400">Pitch perturbation</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Shimmer (Local)</span>
+              <p className="text-lg font-black text-amber-300 mt-0.5">
+                {(result.praat.voice_quality.shimmer_local * 100).toFixed(2)}<span className="text-xs font-normal text-slate-400">%</span>
+              </p>
+              <span className="text-[10px] text-slate-400">Amplitude stability</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Phonetic Markers Table */}
       <div className="p-6 rounded-2xl glass-panel border border-white/10">

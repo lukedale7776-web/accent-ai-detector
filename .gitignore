@@ -34,3 +34,7 @@ next-env.d.ts
 scratch/
 production_test_results.json
 .env*
+praat-service/venv/
+__pycache__/
+*.pyc
+
